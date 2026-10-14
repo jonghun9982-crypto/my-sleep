@@ -46,3 +46,8 @@ html{height:-webkit-fill-available}
 #tab-home .tog{flex:1 1 auto;height:auto;min-height:160px;margin:4px 0 10px}
 #tab-home>.card{flex:0 0 auto;margin:0}
 #tab-home #list{max-height:40vh;overflow:auto}
+.tog{backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2)}
+.tog .w{opacity:.42;background:linear-gradient(180deg,rgba(255,255,255,.95) 0%,#8b6a43 55%,#6e5232 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 1px 0 rgba(255,255,255,.7)) drop-shadow(0 2px 6px rgba(110,82,50,.25))}
+.tog .el{opacity:.3;color:#8b6a43;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+[data-theme=dark] .tog .w{opacity:.45;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,#8f97ff 50%,#4a52c8 100%);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 1px 0 rgba(255,255,255,.35)) drop-shadow(0 2px 8px rgba(10,15,60,.5))}
+[data-theme=dark] .tog .el{color:#b9beff;text-shadow:0 1px 0 rgba(255,255,255,.2)}
