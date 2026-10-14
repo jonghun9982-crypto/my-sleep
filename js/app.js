@@ -157,10 +157,15 @@ function model(N){const last=N.slice(-28);const wma=k=>{const a=last.slice(-14);
  return{base,e:{dur:eff('dur'),bed:eff('bed')},sd:{dur:sd(last.map(n=>n.dur)),bed:sd(last.map(n=>n.bed))}};}
 function forecast(N){const M=model(N);const out=[];for(let i=1;i<=7;i++){const d=new Date();d.setDate(d.getDate()+i);const w=d.getDay();
   out.push({d,dur:M.base.dur+M.e.dur[w],bed:M.base.bed+M.e.bed[w]})}return{M,f:out};}
-function predict(){const N=nights();if(N.length<7){$('#predOut').innerHTML='<p class="err">'+t('needPred',N.length)+'</p>';return}
- const {M,f}=forecast(N);
- let rows=f.map(x=>'<tr><td>'+md(x.d)+'</td><td><b>'+fmtH(x.dur)+'</b></td><td>'+(x.dur-M.sd.dur).toFixed(1)+'–'+(x.dur+M.sd.dur).toFixed(1)+'h</td><td>'+clk(x.bed-M.sd.bed)+'–'+clk(x.bed+M.sd.bed)+'</td></tr>').join('');
- $('#predOut').innerHTML='<p>'+t('predSum',fmtH(mean(f.map(x=>x.dur))),clk(mean(f.map(x=>x.bed))-M.sd.bed),clk(mean(f.map(x=>x.bed))+M.sd.bed))+'</p><table><tr><th>'+t('pDay')+'</th><th>'+t('pDur')+'</th><th>'+t('pRange')+'</th><th>'+t('bedPred')+'</th></tr>'+rows+'</table>';
+function predict(){const N=nights();$('#predEst').textContent=lang==='ko'?'* 추정치':'* Estimate';
+ if(N.length<7){$('#predErr').textContent=t('needPred',N.length);if(charts.cPred){charts.cPred.destroy();delete charts.cPred}return}
+ $('#predErr').textContent='';if(!hasChart())return;const {M,f}=forecast(N),r=v=>+v.toFixed(2);
+ mk('cPred',{type:'line',data:{labels:f.map(x=>md(x.d)),datasets:[
+  {label:'hi',data:f.map(x=>r(x.dur+M.sd.dur)),borderColor:'transparent',pointRadius:0,fill:false,tension:.3},
+  {label:'lo',data:f.map(x=>r(x.dur-M.sd.dur)),borderColor:'transparent',backgroundColor:'rgba(240,160,48,.18)',pointRadius:0,fill:'-1',tension:.3},
+  {label:t('predicted'),data:f.map(x=>r(x.dur)),borderColor:'#f0a030',backgroundColor:'#f0a030',borderWidth:2.5,pointRadius:3,tension:.3}]},
+  options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{filter:i=>i.datasetIndex===2,callbacks:{label:c=>fmtH(c.raw)}}},
+   scales:{x:{ticks:{maxRotation:0,font:{size:10}}},y:{suggestedMin:5,suggestedMax:9,ticks:{callback:v=>v+'h'}}}}});
 }
 const KO=()=>lang==='ko';
 const ACC={f7:['📅 7일 예측','📅 7-day forecast'],bed:['⏰ 목표 기상 시간 → 권장 취침 시간','⏰ Target wake time → bedtime'],debt:['💳 수면 빚','💳 Sleep debt'],acc:['🎯 예측 정확도','🎯 Prediction accuracy'],warn:['⚠️ 다음 주 수면 부족 주의일','⚠️ Short-sleep risk days next week']};

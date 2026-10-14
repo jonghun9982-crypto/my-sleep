@@ -35,3 +35,4 @@ label{display:block;margin:10px 0;font-size:14px}input{display:block;width:100%;
 table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}td,th{padding:7px 4px;border-bottom:1px solid var(--line);text-align:center}th{color:var(--mut);font-weight:600;font-size:12px}
 #sampleBox p{margin:0 0 8px;font-size:13px}
 .acc{border-bottom:1px solid var(--line)}.accb{width:100%;text-align:left;background:var(--btn);color:var(--btx);padding:14px 12px;margin:6px 0;font-size:15px;font-weight:600;border-radius:12px}.accb.open{background:var(--acc);color:#fff}.accp{padding:4px 2px 12px;font-size:14px}.accp p{margin:6px 0}
+#predErr:empty{display:none}
