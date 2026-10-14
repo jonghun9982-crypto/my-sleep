@@ -51,3 +51,9 @@ html{height:-webkit-fill-available}
 .tog .el{opacity:.3;color:#8b6a43;text-shadow:0 1px 0 rgba(255,255,255,.6)}
 [data-theme=dark] .tog .w{opacity:.45;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,#8f97ff 50%,#4a52c8 100%);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 1px 0 rgba(255,255,255,.35)) drop-shadow(0 2px 8px rgba(10,15,60,.5))}
 [data-theme=dark] .tog .el{color:#b9beff;text-shadow:0 1px 0 rgba(255,255,255,.2)}
+.tog,.tog.zz{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);box-shadow:none}
+[data-theme=light] .tog{background:rgba(255,255,255,.55);border-color:rgba(139,106,67,.22)}
+[data-theme=dark] .tog,[data-theme=dark] .tog.zz{background:rgba(120,128,230,.16);border-color:rgba(160,165,255,.3)}
+.tog .w,[data-theme=dark] .tog .w{background:none;-webkit-background-clip:border-box;background-clip:border-box;-webkit-text-fill-color:currentColor;filter:none;text-shadow:none;color:#7a5c3a;opacity:.4}
+.tog .el,[data-theme=dark] .tog .el{text-shadow:none;color:#7a5c3a;opacity:.28}
+[data-theme=dark] .tog .w,[data-theme=dark] .tog .el{color:#9aa2ff}
