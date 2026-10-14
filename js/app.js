@@ -277,6 +277,8 @@ function report(){const S=stats();if(!S){$('#report').innerHTML='<div class="car
  $('#qaForm').onsubmit=e=>{e.preventDefault();ask($('#qIn').value);$('#qIn').value='';};
  document.querySelectorAll('.chips button').forEach(b=>b.onclick=()=>ask(b.textContent));
  if(prevAns)ask(prevAns);}
-applyTheme();applyLang();render();
+function fitH(){const r=document.documentElement.style;r.setProperty('--hh',document.querySelector('header').offsetHeight+'px');r.setProperty('--nh',document.querySelector('nav').offsetHeight+'px');}
+addEventListener('resize',fitH);addEventListener('orientationchange',fitH);if(window.visualViewport)visualViewport.addEventListener('resize',fitH);
+applyTheme();applyLang();render();fitH();
 setInterval(()=>{if($('#tab-home').classList.contains('active')&&!$('#dlg').open)render()},60000);
 })();
