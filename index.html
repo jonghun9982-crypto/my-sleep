@@ -1,36 +1,45 @@
 <!DOCTYPE html>
 <html lang="ko"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes"><title>My Sleep</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="My Sleep">
+<meta name="theme-color" content="#0f1530"><title>My Sleep</title>
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<script>(function(){var t=localStorage.getItem('mysleep.theme');if(!t)t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
 <link rel="stylesheet" href="css/style.css">
 <script src="js/chart.umd.min.js"></script>
 </head><body>
-<header><h1>My Sleep</h1><span id="badge" class="badge">샘플 데이터</span></header>
+<header><h1>My Sleep</h1><span id="badge" class="badge" data-i18n="sample"></span><span class="sp"></span>
+<button id="btnLang" class="icon" aria-label="Language">EN</button><button id="btnTheme" class="icon" aria-label="Theme">☀️</button></header>
 <main>
 <section id="tab-home" class="tab active">
-  <div id="status" class="card status"></div>
   <div class="bigbtns"><button id="btnSleep" class="big sleep">🌙 Sleep</button><button id="btnWake" class="big wake">☀️ Wake up</button></div>
+  <p id="sleeping" class="note center"></p>
   <div class="card" id="sampleBox"></div>
-  <div class="card"><div class="row"><h2>최근 기록</h2><button id="btnAdd" class="small">+ 직접 추가</button></div><ul id="list"></ul></div>
+  <div class="card"><div class="row"><h2 data-i18n="recent"></h2><span class="sp"></span><button id="btnAdd" class="small" data-i18n="addManual"></button><button id="btnFold" class="small"></button></div><ul id="list" class="hide"></ul></div>
 </section>
 <section id="tab-charts" class="tab">
-  <div class="card"><h2>일별 수면 시간 (최근 14일)</h2><div class="cw" style="height:220px"><canvas id="cDaily"></canvas></div></div>
-  <div class="card"><div class="row"><h2 id="trendTitle">주간 추이</h2><div class="seg"><button data-p="week" class="on">주간</button><button data-p="month">월간</button></div></div>
+  <div class="card"><h2 data-i18n="daily14"></h2><div class="cw" style="height:220px"><canvas id="cDaily"></canvas></div>
+  <div class="legend"><span><i class="lg lg-low"></i><span data-i18n="lgLow"></span></span><span><i class="lg" style="background:#4fb3ff"></i>7–9h</span><span><i class="lg lg-high"></i><span data-i18n="lgHigh"></span></span></div></div>
+  <div class="card"><div class="row"><h2 id="trendTitle"></h2><div class="seg"><button data-p="week" class="on" data-i18n="week"></button><button data-p="month" data-i18n="month"></button></div></div>
   <div class="cw" style="height:200px"><canvas id="cDur"></canvas></div><div class="cw" style="height:220px"><canvas id="cTime"></canvas></div>
-  <p class="note">취침/기상 시각은 자정을 넘는 경우를 위해 “18시 기준 경과 시간”으로 계산 후 실제 시각으로 표시합니다.</p></div>
+  <p class="note" data-i18n="timeNote"></p></div>
 </section>
 <section id="tab-predict" class="tab">
-  <div class="card"><h2>앞으로 7일 예측</h2><p class="note">최근 기록의 가중 이동평균(최근일수록 큰 비중) + 요일별 차이를 더한 단순 추정치입니다. 범위는 ±1 표준편차.</p>
-  <button id="btnPredict" class="big wake">예측하기</button><div id="predOut"></div></div>
+  <div class="card"><h2 data-i18n="pred7"></h2>
+  <button id="btnPredict" class="big wake" data-i18n="predictBtn"></button><p id="predSum"></p><div class="cw hide" id="predWrap" style="height:320px"><canvas id="cPred"></canvas></div>
+  <p class="note" data-i18n="predNote"></p></div>
 </section>
 <section id="tab-report" class="tab"><div id="report"></div></section>
 </main>
-<nav><button data-t="home" class="on">🏠<br>기록</button><button data-t="charts">📊<br>차트</button><button data-t="predict">🔮<br>예측</button><button data-t="report">🩺<br>리포트</button></nav>
-<dialog id="dlg"><form method="dialog" id="dlgForm"><h2 id="dlgTitle">기록 수정</h2>
-<label>잠든 시각<input type="datetime-local" id="fSleep" required></label>
-<label>깬 시각 (비워두면 수면 중)<input type="datetime-local" id="fWake"></label>
+<nav><button data-t="home" class="on">🏠<br><span data-i18n="navHome"></span></button><button data-t="charts">📊<br><span data-i18n="navCharts"></span></button><button data-t="predict">🔮<br><span data-i18n="navPredict"></span></button><button data-t="report">🩺<br><span data-i18n="navReport"></span></button></nav>
+<dialog id="dlg"><form method="dialog" id="dlgForm"><h2 id="dlgTitle"></h2>
+<label><span data-i18n="fSleep"></span><input type="datetime-local" id="fSleep" required></label>
+<label><span data-i18n="fWake"></span><input type="datetime-local" id="fWake"></label>
 <p id="dlgErr" class="err"></p>
-<div class="row"><button type="button" id="dlgDel" class="danger">삭제</button><span></span><button value="cancel" formnovalidate>취소</button><button type="button" id="dlgSave" class="primary">저장</button></div>
+<div class="row"><button type="button" id="dlgDel" class="danger" data-i18n="del"></button><span></span><button value="cancel" formnovalidate data-i18n="cancel"></button><button type="button" id="dlgSave" class="primary" data-i18n="save"></button></div>
 </form></dialog>
 <script src="js/app.js"></script>
 </body></html>
