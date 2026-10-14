@@ -88,8 +88,7 @@ function render(){
  $('#badge').classList.toggle('hide',!sample);
  const all=recs().slice().sort((a,b)=>new Date(b.sleep)-new Date(a.sleep));const open=all.find(r=>!r.wake);
  const tb=$('#btnToggle'),KOx=lang==='ko';tb.classList.toggle('zz',!!open);
- tb.innerHTML=open?'<span class="ic">🌙</span><span>'+(KOx?'수면 중':'Sleeping')+'</span><span class="sub">'+(KOx?'취침 ':'since ')+hm(new Date(open.sleep))+(KOx?'부터':'')+'</span><span class="el">'+fmtH((Date.now()-new Date(open.sleep))/36e5)+'</span><span class="sub">'+(KOx?'탭하면 기상 기록':'Tap to log Awake')+'</span>'
-  :'<span class="ic">🛏️</span><span>'+(KOx?'취침':'Sleep')+'</span><span class="sub">'+(KOx?'깨어 있음 · 탭하면 취침 기록':'Awake · tap to log Sleep')+'</span>';
+ tb.innerHTML=open?'<span class="w">'+(KOx?'기상':'Awake')+'</span><span class="el">'+fmtH((Date.now()-new Date(open.sleep))/36e5)+'</span>':'<span class="w">'+(KOx?'수면':'Sleep')+'</span>';
  $('#disc').innerHTML=t('disc')+(sample?'<br><b>'+t('sampleCalc')+'</b>':'');
  $('#btnFold').textContent=folded?t('unfold'):t('fold');$('#list').classList.toggle('hide',folded);
  $('#list').innerHTML=all.slice(0,10).map(r=>{const s=new Date(r.sleep),w=r.wake&&new Date(r.wake);

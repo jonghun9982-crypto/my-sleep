@@ -40,3 +40,4 @@ table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}td,th{pa
 .tog .ic{font-size:72px}.tog .sub{font-size:16px;font-weight:600;color:var(--mut)}.tog .el{font-size:22px;font-weight:700}
 [data-theme=light] .tog{background:linear-gradient(160deg,rgba(255,255,255,.75),rgba(255,236,200,.35));border-color:rgba(139,106,67,.25)}
 .tog.zz{background:linear-gradient(160deg,rgba(120,125,255,.35),rgba(60,70,180,.12));border-color:rgba(160,165,255,.4)}
+.tog .w{font-size:76px;font-weight:800;opacity:.6;letter-spacing:2px}.tog .el{font-size:18px;font-weight:600;opacity:.5}
