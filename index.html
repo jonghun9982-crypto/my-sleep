@@ -17,7 +17,6 @@
 <section id="tab-home" class="tab active">
   <div class="bigbtns"><button id="btnSleep" class="big sleep">🌙 Sleep</button><button id="btnWake" class="big wake">☀️ Wake up</button></div>
   <p id="sleeping" class="note center"></p>
-  <div class="card" id="sampleBox"></div>
   <div class="card"><div class="row"><h2 data-i18n="recent"></h2><span class="sp"></span><button id="btnAdd" class="small" data-i18n="addManual"></button><button id="btnFold" class="small"></button></div><ul id="list" class="hide"></ul></div>
 </section>
 <section id="tab-charts" class="tab">
@@ -28,11 +27,15 @@
   <p class="note" data-i18n="timeNote"></p></div>
 </section>
 <section id="tab-predict" class="tab">
-  <div class="card"><h2 data-i18n="pred7"></h2>
-  <button id="btnPredict" class="big wake" data-i18n="predictBtn"></button><p id="predSum"></p><div class="cw hide" id="predWrap" style="height:320px"><canvas id="cPred"></canvas></div>
-  <p class="note" data-i18n="predNote"></p></div>
+  <div class="card"><h2 data-i18n="navPredict"></h2><div id="acc">
+  <div class="acc"><button class="accb" data-k="f7"></button><div class="accp hide"><div id="predOut"></div><p class="note" data-i18n="predNote"></p></div></div>
+  <div class="acc"><button class="accb" data-k="bed"></button><div class="accp hide"><label><span id="wkLbl"></span><input type="time" id="wkIn" value="07:00"></label><div id="bedOut"></div></div></div>
+  <div class="acc"><button class="accb" data-k="debt"></button><div class="accp hide" id="debtOut"></div></div>
+  <div class="acc"><button class="accb" data-k="acc"></button><div class="accp hide" id="accOut"></div></div>
+  <div class="acc"><button class="accb" data-k="warn"></button><div class="accp hide" id="warnOut"></div></div>
+  </div></div>
 </section>
-<section id="tab-report" class="tab"><div id="report"></div></section>
+<section id="tab-report" class="tab"><div id="report"></div><div class="card" id="sampleBox"></div></section>
 </main>
 <nav><button data-t="home" class="on">🏠<br><span data-i18n="navHome"></span></button><button data-t="charts">📊<br><span data-i18n="navCharts"></span></button><button data-t="predict">🔮<br><span data-i18n="navPredict"></span></button><button data-t="report">🩺<br><span data-i18n="navReport"></span></button></nav>
 <dialog id="dlg"><form method="dialog" id="dlgForm"><h2 id="dlgTitle"></h2>

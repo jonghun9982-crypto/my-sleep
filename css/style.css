@@ -8,7 +8,7 @@ main{padding:0 12px}.tab{display:none}.tab.active{display:block}
 .card{background:var(--card);border-radius:16px;padding:14px;margin:10px 0}h2{font-size:16px;margin:0 0 8px}
 .bigbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}.center{text-align:center}
 button{font:inherit;border:0;border-radius:12px;padding:8px 12px;background:var(--btn);color:var(--btx);cursor:pointer}
-.big{width:100%;padding:26px 0;font-size:22px;font-weight:700}.sleep{background:#5b5fe8;color:#fff}.wake{background:#f0a030;color:#2a1700}
+.big{width:100%;padding:26px 0;}.bigbtns .big{padding:60px 0;}.big{font-size:22px;font-weight:700}.sleep{background:#5b5fe8;color:#fff}.wake{background:#f0a030;color:#2a1700}
 .big:disabled{opacity:.35}.small{font-size:13px;padding:6px 10px}
 .row{display:flex;align-items:center;justify-content:space-between;gap:8px}.row h2{margin:0}
 ul{list-style:none;padding:0;margin:8px 0 0}li{display:flex;justify-content:space-between;align-items:center;padding:10px 4px;border-bottom:1px solid var(--line);font-size:14px}
@@ -31,3 +31,7 @@ label{display:block;margin:10px 0;font-size:14px}input{display:block;width:100%;
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.chips button{background:var(--chip);font-size:13px;padding:6px 10px;border-radius:16px;border:1px solid var(--line)}
 .ans{margin-top:12px;padding:12px;border-radius:12px;background:var(--chip);font-size:14px;line-height:1.55;white-space:pre-line}
 .ans .q{font-weight:700;color:var(--hl);display:block;margin-bottom:4px}
+
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}td,th{padding:7px 4px;border-bottom:1px solid var(--line);text-align:center}th{color:var(--mut);font-weight:600;font-size:12px}
+#sampleBox p{margin:0 0 8px;font-size:13px}
+.acc{border-bottom:1px solid var(--line)}.accb{width:100%;text-align:left;background:var(--btn);color:var(--btx);padding:14px 12px;margin:6px 0;font-size:15px;font-weight:600;border-radius:12px}.accb.open{background:var(--acc);color:#fff}.accp{padding:4px 2px 12px;font-size:14px}.accp p{margin:6px 0}

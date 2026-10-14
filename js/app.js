@@ -5,14 +5,14 @@ let lang=localStorage.getItem(LANG)||((navigator.language||'ko').startsWith('ko'
 const I={ko:{
  sample:'샘플 데이터',recent:'최근 기록',addManual:'+ 추가',unfold:'펼치기 ▾',fold:'숨기기 ▴',daily14:'일별 수면 시간 (최근 14일)',lgLow:'7h 미만 (0h 검정)',lgHigh:'9h 초과 (16h+ 검정)',
  week:'주간',month:'월간',timeNote:'취침/기상 시각은 자정을 넘는 경우를 위해 “18시 기준 경과 시간”으로 계산 후 실제 시각으로 표시합니다.',
- pred7:'앞으로 7일 예측',predictBtn:'예측하기',predNote:'최근 14일 가중 이동평균 + 요일 보정의 단순 추정치. 음영 = ±1 표준편차.',
+ pred7:'앞으로 7일 예측',predictBtn:'예측하기',predNote:'방법: 최근 14일 가중평균 + 요일 보정, 범위 = 최근 28일 ±1 표준편차 (추정치).',
  navHome:'기록',navCharts:'차트',navPredict:'예측',navReport:'리포트',fSleep:'잠든 시각',fWake:'깬 시각 (비워두면 수면 중)',del:'삭제',cancel:'취소',save:'저장',
  editRec:'기록 수정',addRec:'기록 추가',edit:'수정',night:'밤',sleeping:'수면 중',noRec:'기록이 없습니다',sleepingSince:(a,b)=>'😴 '+a+'부터 수면 중 · '+b+' 경과',
  sampleInfo:'지금 보이는 기록은 체험용 가짜 데이터(약 90일)입니다.',useOwn:'샘플 지우고 내 기록 사용하기',ownInfo:n=>'내 기록 사용 중 ('+n+'건, 이 기기 브라우저에만 저장)',showSample:'샘플 데이터 다시 보기',
- cfOwn:'샘플 데이터를 지우고 내 기록으로 시작할까요?',guard:'샘플 데이터 모드입니다. 먼저 "샘플 지우고 내 기록 사용하기"를 눌러 주세요.',
+ cfOwn:'샘플 데이터를 지우고 내 기록으로 시작할까요?',guard:'샘플 데이터 모드입니다. 리포트 탭 하단(또는 상단 배지)의 "샘플 지우고 내 기록 사용하기"를 눌러 주세요.',
  eSleep:'잠든 시각을 입력하세요',eRange:'깬 시각은 잠든 시각 이후, 24시간 이내여야 합니다',eOpen:'이미 수면 중인 기록이 있습니다',cfDel:'이 기록을 삭제할까요?',
  noChart:'차트 라이브러리를 불러오지 못했습니다.',sleepH:'수면 시간(h)',hours:'시간',clock:'시각',trendW:'주간 추이 (12주)',trendM:'월간 추이 (6개월)',avgDur:'평균 수면 시간',avgBed:'평균 취침 시각',avgWake:'평균 기상 시각',
- mon:m=>m+'월',actual:'실제 수면',predicted:'예측 수면',bedAct:'실제 취침',bedPred:'예상 취침 창',
+ mon:m=>m+'월',actual:'실제 수면',predicted:'예측 수면',bedAct:'실제 취침',bedPred:'예상 취침 창',pDay:'날짜',pDur:'예상 수면',pRange:'범위',
  needPred:n=>'예측하려면 최소 7일 이상의 기록이 필요합니다 (현재 '+n+'일).',predSum:(a,b,c)=>'🔮 다음 7일 평균 약 <b>'+a+'</b>, 취침 <b>'+b+'~'+c+'</b> 예상 <span class="est">추정치</span>',
  rpTitle:'🩺 건강 리포트',needRp:'리포트를 만들려면 최소 5일 기록이 필요합니다.',
  rpSum:(n,a,b,s)=>'최근 '+n+'일 평균 <b>'+a+'</b> · 취침 '+b+' · 7시간 미만 '+s+'일',
@@ -24,14 +24,14 @@ const I={ko:{
 },en:{
  sample:'Sample data',recent:'Recent records',addManual:'+ Add',unfold:'Show ▾',fold:'Hide ▴',daily14:'Daily sleep (last 14 days)',lgLow:'<7h (0h black)',lgHigh:'>9h (16h+ black)',
  week:'Week',month:'Month',timeNote:'Bed/wake times are computed as hours after 18:00 (to handle midnight) and shown as clock times.',
- pred7:'Next 7 days forecast',predictBtn:'Predict',predNote:'Simple estimate: 14-day weighted moving average + day-of-week adjustment. Shaded = ±1 SD.',
+ pred7:'Next 7 days forecast',predictBtn:'Predict',predNote:'Method: 14-day weighted average + day-of-week adjustment; range = ±1 SD of last 28 days (estimate).',
  navHome:'Log',navCharts:'Charts',navPredict:'Predict',navReport:'Report',fSleep:'Fell asleep',fWake:'Woke up (blank = still asleep)',del:'Delete',cancel:'Cancel',save:'Save',
  editRec:'Edit record',addRec:'Add record',edit:'Edit',night:'night',sleeping:'sleeping',noRec:'No records yet',sleepingSince:(a,b)=>'😴 Asleep since '+a+' · '+b,
  sampleInfo:'The records shown are fake demo data (~90 days).',useOwn:'Clear sample & use my records',ownInfo:n=>'Using my records ('+n+', stored only in this browser)',showSample:'Show sample data again',
- cfOwn:'Clear sample data and start with your own records?',guard:'Sample mode is on. Tap "Clear sample & use my records" first.',
+ cfOwn:'Clear sample data and start with your own records?',guard:'Sample mode is on. Tap "Clear sample & use my records" at the bottom of the Report tab (or the badge) first.',
  eSleep:'Enter the time you fell asleep',eRange:'Wake time must be after sleep time and within 24h',eOpen:'There is already an open sleep record',cfDel:'Delete this record?',
  noChart:'Failed to load chart library.',sleepH:'Sleep (h)',hours:'hours',clock:'time',trendW:'Weekly trend (12 wks)',trendM:'Monthly trend (6 mo)',avgDur:'Avg sleep',avgBed:'Avg bedtime',avgWake:'Avg wake time',
- mon:m=>['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1],actual:'Actual sleep',predicted:'Predicted sleep',bedAct:'Actual bedtime',bedPred:'Bedtime window',
+ mon:m=>['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1],actual:'Actual sleep',predicted:'Predicted sleep',bedAct:'Actual bedtime',bedPred:'Bedtime window',pDay:'Date',pDur:'Est. sleep',pRange:'Range',
  needPred:n=>'Need at least 7 nights to predict (currently '+n+').',predSum:(a,b,c)=>'🔮 Next 7 days: ~<b>'+a+'</b> avg, bedtime <b>'+b+'–'+c+'</b> <span class="est">estimate</span>',
  rpTitle:'🩺 Health report',needRp:'Need at least 5 nights for a report.',
  rpSum:(n,a,b,s)=>'Last '+n+' nights: avg <b>'+a+'</b> · bedtime '+b+' · '+s+' nights under 7h',
@@ -82,7 +82,7 @@ matchMedia('(prefers-color-scheme: light)').addEventListener('change',e=>{if(!lo
 function applyLang(){document.documentElement.lang=lang;$('#btnLang').textContent=lang==='ko'?'EN':'한';
  document.querySelectorAll('[data-i18n]').forEach(e=>e.textContent=t(e.dataset.i18n));}
 $('#btnLang').onclick=()=>{lang=lang==='ko'?'en':'ko';localStorage.setItem(LANG,lang);applyLang();refresh();};
-function refresh(){render();if($('#tab-predict').classList.contains('active')&&!$('#predWrap').classList.contains('hide'))predict(false);}
+function refresh(){render();if(typeof accRefresh==='function')accRefresh();}
 // home
 function render(){
  $('#badge').classList.toggle('hide',!sample);
@@ -92,7 +92,7 @@ function render(){
  $('#btnFold').textContent=folded?t('unfold'):t('fold');$('#list').classList.toggle('hide',folded);
  $('#list').innerHTML=all.slice(0,10).map(r=>{const s=new Date(r.sleep),w=r.wake&&new Date(r.wake);
   return '<li><span><span class="d">'+md(new Date(s-12*36e5))+' '+t('night')+'</span> '+hm(s)+' → '+(w?hm(w)+' <span class="note">'+fmtH((w-s)/36e5)+'</span>':t('sleeping'))+'</span><button class="small" data-id="'+r.id+'">'+t('edit')+'</button></li>'}).join('')||'<li class="note">'+t('noRec')+'</li>';
- $('#sampleBox').innerHTML=sample?'<p><span class="badge">'+t('sample')+'</span> '+t('sampleInfo')+'</p><button id="btnOwn" class="primary">'+t('useOwn')+'</button>'
+ $('#sampleBox').innerHTML=sample?'<p>⚙️ '+t('sampleInfo')+'</p><button id="btnOwn" class="small">'+t('useOwn')+'</button>'
   :'<p class="note">'+t('ownInfo',own.length)+'</p><button id="btnSample" class="small">'+t('showSample')+'</button>';
  const bo=$('#btnOwn');if(bo)bo.onclick=()=>{if(confirm(t('cfOwn'))){sample=false;localStorage.setItem(MODE,'off');render();}};
  const bs=$('#btnSample');if(bs)bs.onclick=()=>{sample=true;localStorage.setItem(MODE,'on');render();};
@@ -101,6 +101,7 @@ function render(){
  if($('#tab-report').classList.contains('active'))report();
 }
 $('#btnFold').onclick=()=>{folded=!folded;render();};
+$('#badge').style.cursor='pointer';$('#badge').onclick=()=>document.querySelector('nav button[data-t=report]').click();
 function guardSample(){if(sample){alert(t('guard'));return true}return false}
 $('#btnSleep').onclick=()=>{if(guardSample())return;own.push({id:uid(),sleep:new Date().toISOString(),wake:null});save();render();};
 $('#btnWake').onclick=()=>{if(guardSample())return;const o=own.find(r=>!r.wake);if(o){o.wake=new Date().toISOString();save();render();}};
@@ -156,32 +157,37 @@ function model(N){const last=N.slice(-28);const wma=k=>{const a=last.slice(-14);
  return{base,e:{dur:eff('dur'),bed:eff('bed')},sd:{dur:sd(last.map(n=>n.dur)),bed:sd(last.map(n=>n.bed))}};}
 function forecast(N){const M=model(N);const out=[];for(let i=1;i<=7;i++){const d=new Date();d.setDate(d.getDate()+i);const w=d.getDay();
   out.push({d,dur:M.base.dur+M.e.dur[w],bed:M.base.bed+M.e.bed[w]})}return{M,f:out};}
-function predict(anim){const N=nights();if(N.length<7){$('#predSum').innerHTML='<span class="err">'+t('needPred',N.length)+'</span>';$('#predWrap').classList.add('hide');return}
+function predict(){const N=nights();if(N.length<7){$('#predOut').innerHTML='<p class="err">'+t('needPred',N.length)+'</p>';return}
  const {M,f}=forecast(N);
- $('#predSum').innerHTML=t('predSum',fmtH(mean(f.map(x=>x.dur))),clk(mean(f.map(x=>x.bed))-M.sd.bed),clk(mean(f.map(x=>x.bed))+M.sd.bed));
- if(!hasChart())return;$('#predWrap').classList.remove('hide');
- const A=N.slice(-14),n=A.length,L=A.map(x=>md(x.w)).concat(f.map(x=>md(x.d)));
- const pre=Array(n-1).fill(null),fut=Array(7).fill(null),r=v=>+v.toFixed(2);
- const last=A[n-1];
- const ds=[
-  {label:t('actual'),data:A.map(x=>r(x.dur)).concat(fut),borderColor:'#4fb3ff',backgroundColor:'#4fb3ff',borderWidth:2.5,pointRadius:2,tension:.3,yAxisID:'y'},
-  {label:t('predicted'),data:pre.concat([r(last.dur)],f.map(x=>r(x.dur))),borderColor:'#f0a030',backgroundColor:'#f0a030',borderDash:[6,4],borderWidth:2.5,pointRadius:2,tension:.3,yAxisID:'y'},
-  {label:'',data:pre.concat([r(last.dur)],f.map(x=>r(x.dur+M.sd.dur))),borderColor:'transparent',pointRadius:0,fill:false,tension:.3,yAxisID:'y'},
-  {label:'',data:pre.concat([r(last.dur)],f.map(x=>r(x.dur-M.sd.dur))),borderColor:'transparent',backgroundColor:'rgba(240,160,48,.22)',pointRadius:0,fill:'-1',tension:.3,yAxisID:'y'},
-  {label:t('bedAct'),data:A.map(x=>r(x.bed)).concat(fut),borderColor:'#8f93ff',borderWidth:1.5,pointRadius:0,tension:.3,yAxisID:'y2'},
-  {label:t('bedPred'),data:pre.concat([r(last.bed)],f.map(x=>r(x.bed))),borderColor:'#b78cff',borderDash:[3,3],borderWidth:1.5,pointRadius:0,tension:.3,yAxisID:'y2'},
-  {label:'',data:pre.concat([r(last.bed)],f.map(x=>r(x.bed+M.sd.bed))),borderColor:'transparent',pointRadius:0,fill:false,tension:.3,yAxisID:'y2'},
-  {label:'',data:pre.concat([r(last.bed)],f.map(x=>r(x.bed-M.sd.bed))),borderColor:'transparent',backgroundColor:'rgba(143,147,255,.18)',pointRadius:0,fill:'-1',tension:.3,yAxisID:'y2'}];
- const total=1600,step=total/L.length;
- const prevY=ctx=>{const m=ctx.chart.getDatasetMeta(ctx.datasetIndex);const p=m.data[ctx.index-1];const y=p&&p.getProps(['y'],true).y;return(y==null||isNaN(y))?ctx.chart.chartArea.bottom:y};
- const animation=anim===false?false:{x:{type:'number',easing:'linear',duration:step,from:NaN,delay(c){if(c.type!=='data'||c.xStarted)return 0;c.xStarted=true;return c.index*step}},
-  y:{type:'number',easing:'linear',duration:step,from:prevY,delay(c){if(c.type!=='data'||c.yStarted)return 0;c.yStarted=true;return c.index*step}}};
- mk('cPred',{type:'line',data:{labels:L,datasets:ds},options:{animation,interaction:{mode:'index',intersect:false},
-  plugins:{legend:{labels:{filter:i=>!!i.text,boxWidth:14,font:{size:11}}},tooltip:{filter:i=>!!i.dataset.label,callbacks:{label:c=>c.dataset.label+': '+(c.dataset.yAxisID==='y2'?clk(c.raw):fmtH(c.raw))}}},
-  scales:{x:{ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:7,font:{size:10}}},y:{min:2,max:11,title:{display:true,text:t('hours')}},
-   y2:{position:'right',reverse:true,min:0,max:9,grid:{drawOnChartArea:false},ticks:{callback:v=>clk(v),stepSize:2,font:{size:10}}}}}});
+ let rows=f.map(x=>'<tr><td>'+md(x.d)+'</td><td><b>'+fmtH(x.dur)+'</b></td><td>'+(x.dur-M.sd.dur).toFixed(1)+'–'+(x.dur+M.sd.dur).toFixed(1)+'h</td><td>'+clk(x.bed-M.sd.bed)+'–'+clk(x.bed+M.sd.bed)+'</td></tr>').join('');
+ $('#predOut').innerHTML='<p>'+t('predSum',fmtH(mean(f.map(x=>x.dur))),clk(mean(f.map(x=>x.bed))-M.sd.bed),clk(mean(f.map(x=>x.bed))+M.sd.bed))+'</p><table><tr><th>'+t('pDay')+'</th><th>'+t('pDur')+'</th><th>'+t('pRange')+'</th><th>'+t('bedPred')+'</th></tr>'+rows+'</table>';
 }
-$('#btnPredict').onclick=()=>predict(true);
+const KO=()=>lang==='ko';
+const ACC={f7:['📅 7일 예측','📅 7-day forecast'],bed:['⏰ 목표 기상 시간 → 권장 취침 시간','⏰ Target wake time → bedtime'],debt:['💳 수면 빚','💳 Sleep debt'],acc:['🎯 예측 정확도','🎯 Prediction accuracy'],warn:['⚠️ 다음 주 수면 부족 주의일','⚠️ Short-sleep risk days next week']};
+function need(){const N=nights().slice(-28);const m=N.length>=7?mean(N.map(n=>n.dur)):7.5;return Math.min(9,Math.max(7,m||7.5))}
+function bedCalc(){const v=$('#wkIn').value||'07:00';const [H,Mi]=v.split(':').map(Number);const W=H+Mi/60,nd=need(),lat=0.25;
+ const c=x=>clk(x-18);let s='<p>'+(KO()?'평소 필요 수면 ':'Your sleep need ')+'<b>'+fmtH(nd)+'</b>'+(KO()?' (최근 28일 평균, 7~9h 범위·기록 부족 시 7.5h) + 잠드는 시간 15분':' (28-day avg, clamped 7–9h, 7.5h default) + 15 min to fall asleep')+'</p>';
+ s+='<p>'+(KO()?'권장 취침: ':'Recommended bedtime: ')+'<b>'+c(W-nd-lat)+'</b></p><p>'+(KO()?'90분 주기 옵션:':'90-min cycle options:')+'</p><ul>';
+ [6,5,4].forEach(k=>{s+='<li><span>'+k+(KO()?' 주기 ('+fmtH(k*1.5)+')':' cycles ('+fmtH(k*1.5)+')')+'</span><b>'+c(W-k*1.5-lat)+'</b></li>'});$('#bedOut').innerHTML=s+'</ul>';}
+function debtCalc(){const N=nights().slice(-14);if(N.length<3){$('#debtOut').innerHTML='<p class="err">'+t('needPred',N.length)+'</p>';return}
+ const d=N.reduce((s,n)=>s+(8-n.dur),0),pos=Math.max(0,d);
+ let s='<p>'+(KO()?'최근 '+N.length+'일 기준 8시간 대비 누적 ':'Last '+N.length+' nights vs 8h, accumulated ')+(d>0?(KO()?'부족':'deficit'):(KO()?'여유':'surplus'))+': <b>'+fmtH(Math.abs(d))+'</b></p>';
+ if(pos>0)s+='<p>'+(KO()?'회복: 매일 +30분이면 약 <b>'+Math.ceil(pos/0.5)+'일</b>, +60분이면 약 <b>'+Math.ceil(pos)+'일</b>':'Recovery: ~<b>'+Math.ceil(pos/0.5)+' days</b> at +30 min/night, ~<b>'+Math.ceil(pos)+' days</b> at +60 min/night')+'</p>';
+ $('#debtOut').innerHTML=s+'<p class="note">'+(KO()?'단순 합산 추정치입니다.':'Simple sum; estimate only.')+'</p>';}
+function accCalc(){const N=nights();if(N.length<21){$('#accOut').innerHTML='<p class="err">'+(KO()?'백테스트에는 최소 21일 기록이 필요합니다 (현재 '+N.length+'일).':'Backtest needs at least 21 nights (currently '+N.length+').')+'</p>';return}
+ let ed=0,eb=0,rows='',k=0;for(let i=N.length-14;i<N.length;i++){const M=model(N.slice(0,i)),n=N[i];const pd=M.base.dur+M.e.dur[n.dow],pb=M.base.bed+M.e.bed[n.dow];ed+=Math.abs(pd-n.dur);eb+=Math.abs(pb-n.bed);k++;
+  rows+='<tr><td>'+md(n.w)+'</td><td>'+fmtH(pd)+'</td><td>'+fmtH(n.dur)+'</td><td>'+Math.round(Math.abs(pd-n.dur)*60)+(KO()?'분':'m')+'</td></tr>'}
+ $('#accOut').innerHTML='<p>'+(KO()?'최근 14일을 각각 이전 기록만으로 예측한 결과 — 평균 절대 오차: 수면 <b>'+Math.round(ed/k*60)+'분</b>, 취침 <b>'+Math.round(eb/k*60)+'분</b>':'Each of the last 14 nights predicted from prior data only — mean abs error: sleep <b>'+Math.round(ed/k*60)+' min</b>, bedtime <b>'+Math.round(eb/k*60)+' min</b>')+'</p><table><tr><th>'+t('pDay')+'</th><th>'+(KO()?'예측':'Pred')+'</th><th>'+(KO()?'실제':'Actual')+'</th><th>'+(KO()?'오차':'Err')+'</th></tr>'+rows+'</table>';}
+function warnCalc(){const N=nights();if(N.length<7){$('#warnOut').innerHTML='<p class="err">'+t('needPred',N.length)+'</p>';return}
+ const {M,f}=forecast(N);const lows=f.filter(x=>x.dur<7||M.e.dur[x.d.getDay()]<-0.33);
+ let s=lows.length?'<ul>'+lows.map(x=>{const why=x.dur<7?(KO()?'예측 7시간 미만':'forecast <7h'):(KO()?'평소 이 요일이 짧음 ('+Math.round(M.e.dur[x.d.getDay()]*60)+'분)':'this weekday usually short ('+Math.round(M.e.dur[x.d.getDay()]*60)+' min)');return '<li><span>'+md(x.d)+' · '+why+'</span><b>'+fmtH(x.dur)+'</b></li>'}).join('')+'</ul>'
+  :'<p>'+(KO()?'다음 7일 중 특별히 주의할 날이 없어요 👍':'No risk days in the next 7 days 👍')+'</p>';
+ $('#warnOut').innerHTML=s+'<p class="note">'+(KO()?'기준: 예측 < 7시간 또는 요일 평균이 전체보다 20분 이상 짧음.':'Rule: forecast < 7h or weekday avg ≥20 min below overall.')+'</p>';}
+const CALC={f7:predict,bed:bedCalc,debt:debtCalc,acc:accCalc,warn:warnCalc};
+function accLabels(){document.querySelectorAll('.accb').forEach(b=>b.textContent=ACC[b.dataset.k][KO()?0:1]+(b.classList.contains('open')?' ▴':' ▾'));$('#wkLbl').textContent=KO()?'목표 기상 시간':'Target wake time';}
+function accRefresh(){accLabels();document.querySelectorAll('.accb.open').forEach(b=>CALC[b.dataset.k]())}
+document.querySelectorAll('.accb').forEach(b=>b.onclick=()=>{const p=b.nextElementSibling,o=p.classList.toggle('hide');b.classList.toggle('open',!o);if(!o)CALC[b.dataset.k]();accLabels();});
+$('#wkIn').oninput=bedCalc;accLabels();
 // report + Q&A
 function stats(){const all=nights();const N=all.slice(-30);if(N.length<5)return null;
  const avg=mean(N.map(n=>n.dur)),bed=mean(N.map(n=>n.bed)),bsd=sd(N.map(n=>n.bed))*60,wk=mean(N.map(n=>n.wk)),wsd=sd(N.map(n=>n.wk))*60;
@@ -231,7 +237,7 @@ function answer(q){const S=stats();const s=q.toLowerCase().replace(/[\s?!.,~]/g,
   phone:()=>ko?'잠들기 1시간 전('+clk(S.bed-1)+'쯤)부터 휴대폰을 내려놓거나 밝기를 낮춰 보세요. 빛과 알림이 잠드는 걸 늦춰요.':'Put the phone down or dim it ~1h before bed (around '+clk(S.bed-1)+'). Light and notifications delay sleep.',
   alcohol:()=>ko?'술은 잠들기는 쉽게 해도 밤중에 자주 깨게 하고 깊은 잠을 줄여요. 취침 3시간 전부터는 피하는 게 좋아요.':'Alcohol may help you doze off but fragments sleep and reduces deep sleep. Avoid it within 3h of bed.',
   insomnia:()=>ko?'20분 이상 잠이 안 오면 잠시 일어나 어두운 곳에서 조용한 활동을 하다 졸릴 때 다시 누워 보세요. 기상 시각을 매일 같게 유지하는 게 핵심이에요. 몇 주 이상 계속되면 전문의 상담을 권해요.':"If you can't sleep for 20+ min, get up, do something calm in dim light, and return when sleepy. Keep a fixed wake time. If it lasts weeks, see a specialist.",
-  predict:()=>{const {M,f}=forecast(S.all);const x=f[0];return ko?'내일('+md(x.d)+') 예상 수면은 약 '+fmtH(x.dur)+', 취침은 '+clk(x.bed)+' 전후예요(추정치). 예측 탭에서 7일 그래프를 볼 수 있어요.':'Tomorrow ('+md(x.d)+'): ~'+fmtH(x.dur)+', bedtime around '+clk(x.bed)+' (estimate). See the Predict tab for 7 days.'},
+  predict:()=>{const {M,f}=forecast(S.all);const x=f[0];return ko?'내일('+md(x.d)+') 예상 수면은 약 '+fmtH(x.dur)+', 취침은 '+clk(x.bed)+' 전후예요(추정치). 예측 탭에서 7일 예측을 볼 수 있어요.':'Tomorrow ('+md(x.d)+'): ~'+fmtH(x.dur)+', bedtime around '+clk(x.bed)+' (estimate). See the Predict tab for the 7-day list.'},
   jetlag:()=>isNaN(S.sj)?(ko?'평일/주말 데이터가 부족해요.':'Not enough weekday/weekend data.'):(ko?'주말 수면 중간점이 평일보다 '+fmtM(S.sj*60)+' '+(S.sj>=0?'늦어요':'빨라요')+'. '+(Math.abs(S.sj)>1?'1시간 이상이라 사회적 시차가 있어요.':'1시간 이내라 양호해요.'):'Your weekend sleep midpoint is '+fmtM(S.sj*60)+' '+(S.sj>=0?'later':'earlier')+' than weekdays. '+(Math.abs(S.sj)>1?'Over 1h — that is social jetlag.':'Within 1h — fine.')),
   debt:()=>ko?'최근 7일 수면 부채(7.5시간 기준)는 약 '+fmtH(S.debt)+'이에요. '+(S.debt>3?'며칠간 30분씩 일찍 자며 천천히 갚아 보세요.':'크지 않아요.'):'Sleep debt over the last 7 nights (vs 7.5h): ~'+fmtH(S.debt)+'. '+(S.debt>3?'Repay it gradually by going to bed 30 min earlier for a few days.':'Not much.'),
   weekend:()=>ko?'주말 평균 '+fmtH(S.weAvg)+', 평일 평균 '+fmtH(S.wdAvg)+' → 주말에 '+fmtM((S.weAvg-S.wdAvg)*60)+' '+(S.weAvg>=S.wdAvg?'더 자요.':'덜 자요.'):'Weekend avg '+fmtH(S.weAvg)+' vs weekday '+fmtH(S.wdAvg)+' → '+fmtM((S.weAvg-S.wdAvg)*60)+' '+(S.weAvg>=S.wdAvg?'more on weekends.':'less on weekends.'),
