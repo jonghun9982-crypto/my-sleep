@@ -1,0 +1,24 @@
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:#0f1530;color:#e8ecff;padding-bottom:80px}
+header{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top) + 12px) 16px 8px}h1{margin:0;font-size:24px}
+.badge{background:#ffb347;color:#3a2200;font-size:12px;font-weight:700;padding:3px 8px;border-radius:10px}.badge.hide{display:none}
+main{padding:0 12px}.tab{display:none}.tab.active{display:block}
+.card{background:#1b2350;border-radius:16px;padding:14px;margin:10px 0}h2{font-size:16px;margin:0 0 8px}
+.status{font-size:17px;text-align:center;line-height:1.5}.status b{font-size:22px}
+.bigbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{font:inherit;border:0;border-radius:12px;padding:8px 12px;background:#2c376e;color:#fff}
+.big{width:100%;padding:26px 0;font-size:22px;font-weight:700}.sleep{background:#5b5fe8}.wake{background:#f0a030;color:#2a1700}
+.big:disabled{opacity:.35}.small{font-size:13px;padding:6px 10px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+ul{list-style:none;padding:0;margin:0}li{display:flex;justify-content:space-between;align-items:center;padding:10px 4px;border-bottom:1px solid #2c376e;font-size:14px}
+li .d{font-weight:700;color:#ffd38a}.note{font-size:12px;color:#9aa5d6}
+.seg button{font-size:13px;padding:5px 10px}.seg .on{background:#5b5fe8}
+nav{position:fixed;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(4,1fr);background:#141b40;padding-bottom:env(safe-area-inset-bottom);border-top:1px solid #2c376e}
+nav button{background:none;border-radius:0;font-size:12px;padding:8px 0;color:#9aa5d6}nav .on{color:#fff;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:7px 4px;border-bottom:1px solid #2c376e;text-align:center}
+.metric{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #2c376e;font-size:14px}.metric b{color:#ffd38a}
+.metric b.good,.good{color:#7be0a0}.metric b.bad,.bad{color:#ff8a8a}.est{display:inline-block;background:#444c88;font-size:11px;padding:2px 6px;border-radius:8px}
+dialog{border:0;border-radius:16px;background:#1b2350;color:#fff;width:92%;max-width:380px}dialog::backdrop{background:#000a}
+label{display:block;margin:10px 0;font-size:14px}input{display:block;width:100%;margin-top:4px;padding:10px;border-radius:10px;border:0;font-size:16px}
+.danger{background:#a33}.primary{background:#5b5fe8}.err{color:#ff8a8a;font-size:13px;min-height:1em}
+.tips li{display:list-item;margin-left:18px;list-style:disc;border:0;padding:4px 0}
+.cw{position:relative;width:100%;margin-bottom:8px}
