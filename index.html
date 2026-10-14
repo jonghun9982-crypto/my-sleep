@@ -29,13 +29,14 @@
 <section id="tab-predict" class="tab">
   <div class="card"><h2 data-i18n="navPredict"></h2><div id="acc">
   <div class="acc"><button class="accb" data-k="f7"></button><div class="accp hide"><p id="predErr" class="err"></p><div class="cw" style="height:220px"><canvas id="cPred"></canvas></div><p class="note" id="predEst"></p></div></div>
-  <div class="acc"><button class="accb" data-k="bed"></button><div class="accp hide"><label><span id="wkLbl"></span><input type="time" id="wkIn" value="07:00"></label><div id="bedOut"></div></div></div>
-  <div class="acc"><button class="accb" data-k="debt"></button><div class="accp hide" id="debtOut"></div></div>
   <div class="acc"><button class="accb" data-k="acc"></button><div class="accp hide" id="accOut"></div></div>
   <div class="acc"><button class="accb" data-k="warn"></button><div class="accp hide" id="warnOut"></div></div>
   </div></div>
 </section>
-<section id="tab-report" class="tab"><div id="report"></div><div class="card" id="sampleBox"></div></section>
+<section id="tab-report" class="tab"><div id="report"></div><div class="card">
+  <div class="acc"><button class="accb" data-k="bed"></button><div class="accp hide"><label><span id="wkLbl"></span><input type="time" id="wkIn" value="07:00"></label><div id="bedOut"></div></div></div>
+  <div class="acc"><button class="accb" data-k="debt"></button><div class="accp hide" id="debtOut"></div></div>
+</div><div class="card" id="sampleBox"></div></section>
 </main>
 <nav><button data-t="home" class="on">🏠<br><span data-i18n="navHome"></span></button><button data-t="charts">📊<br><span data-i18n="navCharts"></span></button><button data-t="predict">🔮<br><span data-i18n="navPredict"></span></button><button data-t="report">🩺<br><span data-i18n="navReport"></span></button></nav>
 <dialog id="dlg"><form method="dialog" id="dlgForm"><h2 id="dlgTitle"></h2>
