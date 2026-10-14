@@ -36,3 +36,7 @@ table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}td,th{pa
 #sampleBox p{margin:0 0 8px;font-size:13px}
 .acc{border-bottom:1px solid var(--line)}.accb{width:100%;text-align:left;background:var(--btn);color:var(--btx);padding:14px 12px;margin:6px 0;font-size:15px;font-weight:600;border-radius:12px}.accb.open{background:var(--acc);color:#fff}.accp{padding:4px 2px 12px;font-size:14px}.accp p{margin:6px 0}
 #predErr:empty{display:none}
+.tog{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;width:100%;height:calc(100dvh - 250px);min-height:300px;margin:6px 0 12px;border-radius:28px;font-size:34px;font-weight:800;color:var(--tx);background:linear-gradient(160deg,rgba(255,255,255,.28),rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.35);box-shadow:0 10px 40px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.4);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.tog .ic{font-size:72px}.tog .sub{font-size:16px;font-weight:600;color:var(--mut)}.tog .el{font-size:22px;font-weight:700}
+[data-theme=light] .tog{background:linear-gradient(160deg,rgba(255,255,255,.75),rgba(255,236,200,.35));border-color:rgba(139,106,67,.25)}
+.tog.zz{background:linear-gradient(160deg,rgba(120,125,255,.35),rgba(60,70,180,.12));border-color:rgba(160,165,255,.4)}

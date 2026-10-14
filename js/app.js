@@ -6,7 +6,7 @@ const I={ko:{
  sample:'샘플 데이터',recent:'최근 기록',addManual:'+ 추가',unfold:'펼치기 ▾',fold:'숨기기 ▴',daily14:'일별 수면 시간 (최근 14일)',lgLow:'7h 미만 (0h 검정)',lgHigh:'9h 초과 (16h+ 검정)',
  week:'주간',month:'월간',timeNote:'취침/기상 시각은 자정을 넘는 경우를 위해 “18시 기준 경과 시간”으로 계산 후 실제 시각으로 표시합니다.',
  pred7:'앞으로 7일 예측',predictBtn:'예측하기',predNote:'방법: 최근 14일 가중평균 + 요일 보정, 범위 = 최근 28일 ±1 표준편차 (추정치).',
- navHome:'기록',navCharts:'차트',navPredict:'예측',navReport:'리포트',fSleep:'잠든 시각',fWake:'깬 시각 (비워두면 수면 중)',del:'삭제',cancel:'취소',save:'저장',
+ navHome:'기록',navCharts:'차트',navPredict:'예측',navReport:'리포트',fSleep:'잠든 시각',fWake:'기상 시각 (비워두면 수면 중)',del:'삭제',cancel:'취소',save:'저장',
  editRec:'기록 수정',addRec:'기록 추가',edit:'수정',night:'밤',sleeping:'수면 중',noRec:'기록이 없습니다',sleepingSince:(a,b)=>'😴 '+a+'부터 수면 중 · '+b+' 경과',
  sampleInfo:'지금 보이는 기록은 체험용 가짜 데이터(약 90일)입니다.',useOwn:'샘플 지우고 내 기록 사용하기',ownInfo:n=>'내 기록 사용 중 ('+n+'건, 이 기기 브라우저에만 저장)',showSample:'샘플 데이터 다시 보기',
  cfOwn:'샘플 데이터를 지우고 내 기록으로 시작할까요?',guard:'샘플 데이터 모드입니다. 리포트 탭 하단(또는 상단 배지)의 "샘플 지우고 내 기록 사용하기"를 눌러 주세요.',
@@ -25,7 +25,7 @@ const I={ko:{
  sample:'Sample data',recent:'Recent records',addManual:'+ Add',unfold:'Show ▾',fold:'Hide ▴',daily14:'Daily sleep (last 14 days)',lgLow:'<7h (0h black)',lgHigh:'>9h (16h+ black)',
  week:'Week',month:'Month',timeNote:'Bed/wake times are computed as hours after 18:00 (to handle midnight) and shown as clock times.',
  pred7:'Next 7 days forecast',predictBtn:'Predict',predNote:'Method: 14-day weighted average + day-of-week adjustment; range = ±1 SD of last 28 days (estimate).',
- navHome:'Log',navCharts:'Charts',navPredict:'Predict',navReport:'Report',fSleep:'Fell asleep',fWake:'Woke up (blank = still asleep)',del:'Delete',cancel:'Cancel',save:'Save',
+ navHome:'Log',navCharts:'Charts',navPredict:'Predict',navReport:'Report',fSleep:'Fell asleep',fWake:'Awake time (blank = still asleep)',del:'Delete',cancel:'Cancel',save:'Save',
  editRec:'Edit record',addRec:'Add record',edit:'Edit',night:'night',sleeping:'sleeping',noRec:'No records yet',sleepingSince:(a,b)=>'😴 Asleep since '+a+' · '+b,
  sampleInfo:'The records shown are fake demo data (~90 days).',useOwn:'Clear sample & use my records',ownInfo:n=>'Using my records ('+n+', stored only in this browser)',showSample:'Show sample data again',
  cfOwn:'Clear sample data and start with your own records?',guard:'Sample mode is on. Tap "Clear sample & use my records" at the bottom of the Report tab (or the badge) first.',
@@ -87,8 +87,10 @@ function refresh(){render();if(typeof accRefresh==='function')accRefresh();}
 function render(){
  $('#badge').classList.toggle('hide',!sample);
  const all=recs().slice().sort((a,b)=>new Date(b.sleep)-new Date(a.sleep));const open=all.find(r=>!r.wake);
- $('#sleeping').textContent=open?t('sleepingSince',md(new Date(open.sleep))+' '+hm(new Date(open.sleep)),fmtH((Date.now()-new Date(open.sleep))/36e5)):'';
- $('#btnSleep').disabled=!!open;$('#btnWake').disabled=!open;
+ const tb=$('#btnToggle'),KOx=lang==='ko';tb.classList.toggle('zz',!!open);
+ tb.innerHTML=open?'<span class="ic">🌙</span><span>'+(KOx?'수면 중':'Sleeping')+'</span><span class="sub">'+(KOx?'취침 ':'since ')+hm(new Date(open.sleep))+(KOx?'부터':'')+'</span><span class="el">'+fmtH((Date.now()-new Date(open.sleep))/36e5)+'</span><span class="sub">'+(KOx?'탭하면 기상 기록':'Tap to log Awake')+'</span>'
+  :'<span class="ic">🛏️</span><span>'+(KOx?'취침':'Sleep')+'</span><span class="sub">'+(KOx?'깨어 있음 · 탭하면 취침 기록':'Awake · tap to log Sleep')+'</span>';
+ $('#disc').innerHTML=t('disc')+(sample?'<br><b>'+t('sampleCalc')+'</b>':'');
  $('#btnFold').textContent=folded?t('unfold'):t('fold');$('#list').classList.toggle('hide',folded);
  $('#list').innerHTML=all.slice(0,10).map(r=>{const s=new Date(r.sleep),w=r.wake&&new Date(r.wake);
   return '<li><span><span class="d">'+md(new Date(s-12*36e5))+' '+t('night')+'</span> '+hm(s)+' → '+(w?hm(w)+' <span class="note">'+fmtH((w-s)/36e5)+'</span>':t('sleeping'))+'</span><button class="small" data-id="'+r.id+'">'+t('edit')+'</button></li>'}).join('')||'<li class="note">'+t('noRec')+'</li>';
@@ -103,8 +105,10 @@ function render(){
 $('#btnFold').onclick=()=>{folded=!folded;render();};
 $('#badge').style.cursor='pointer';$('#badge').onclick=()=>document.querySelector('nav button[data-t=report]').click();
 function guardSample(){if(sample){alert(t('guard'));return true}return false}
-$('#btnSleep').onclick=()=>{if(guardSample())return;own.push({id:uid(),sleep:new Date().toISOString(),wake:null});save();render();};
-$('#btnWake').onclick=()=>{if(guardSample())return;const o=own.find(r=>!r.wake);if(o){o.wake=new Date().toISOString();save();render();}};
+function setTh(th){document.documentElement.dataset.theme=th;localStorage.setItem(THEME,th);applyTheme();}
+$('#btnToggle').onclick=()=>{if(guardSample())return;const o=own.find(r=>!r.wake);
+ if(o){o.wake=new Date().toISOString();setTh('light');}else{own.push({id:uid(),sleep:new Date().toISOString(),wake:null});setTh('dark');}save();refresh();};
+setInterval(()=>{if(own.some(r=>!r.wake)&&!sample)render()},60000);
 $('#btnAdd').onclick=()=>{if(guardSample())return;openDlg(null)};
 let editId=null;
 function openDlg(id){if(id&&guardSample())return;editId=id;const r=own.find(x=>x.id===id);
@@ -269,7 +273,7 @@ function report(){const S=stats();if(!S){$('#report').innerHTML='<div class="car
  $('#report').innerHTML='<div class="card"><h2>'+t('rpTitle')+'</h2><p class="sum">'+t('rpSum',S.N.length,fmtH(S.avg),clk(S.bed)+' ±'+Math.round(S.bsd)+(lang==='ko'?'분':'m'),S.short.length)+'<br><span class="'+(S.avg>=7&&S.avg<=9?'good':'bad')+'">'+(S.avg<7?t('rpLow'):S.avg>9?t('rpHigh'):t('rpOk'))+'</span></p>'
  +'<form class="qa" id="qaForm"><input id="qIn" placeholder="'+t('askPh')+'" autocomplete="off"><button class="primary">'+t('ask')+'</button></form>'
  +'<div class="chips">'+t('chips').map(c=>'<button type="button">'+c+'</button>').join('')+'</div><div id="ans" class="ans hide"></div></div>'
- +'<div class="card note">'+t('disc')+(sample?'<br><b>'+t('sampleCalc')+'</b>':'')+'</div>';
+;
  const ask=q=>{q=q.trim();if(!q)return;const a=$('#ans');a.dataset.q=q;a.classList.remove('hide');a.innerHTML='';const qs=document.createElement('span');qs.className='q';qs.textContent='Q. '+q;a.append(qs,document.createTextNode(answer(q)));};
  $('#qaForm').onsubmit=e=>{e.preventDefault();ask($('#qIn').value);$('#qIn').value='';};
  document.querySelectorAll('.chips button').forEach(b=>b.onclick=()=>ask(b.textContent));
