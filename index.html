@@ -20,22 +20,22 @@
 </section>
 <section id="tab-charts" class="tab">
   <div class="card"><h2 data-i18n="daily14"></h2><div class="cw" style="height:220px"><canvas id="cDaily"></canvas></div>
-  <div class="legend"><span><i class="lg lg-low"></i><span data-i18n="lgLow"></span></span><span><i class="lg" style="background:#4fb3ff"></i>7–9h</span><span><i class="lg lg-high"></i><span data-i18n="lgHigh"></span></span></div></div>
+  <div class="legend"><span><i class="lg lg-low"></i><span data-i18n="lgLow"></span></span><span><i class="lg" style="background:#4fb3ff"></i>7–9h</span><span><i class="lg lg-high"></i><span data-i18n="lgHigh"></span></span></div><div class="mini" data-m="daily"></div></div>
   <div class="card"><div class="row"><h2 id="trendTitle"></h2><div class="seg"><button data-p="week" class="on" data-i18n="week"></button><button data-p="month" data-i18n="month"></button></div></div>
   <div class="cw" style="height:200px"><canvas id="cDur"></canvas></div><div class="cw" style="height:220px"><canvas id="cTime"></canvas></div>
-  <p class="note" data-i18n="timeNote"></p></div>
+  <p class="note" data-i18n="timeNote"></p><div class="mini" data-m="trend"></div></div>
 </section>
 <section id="tab-predict" class="tab">
   <div class="card"><h2 data-i18n="navPredict"></h2><div id="acc">
   <div class="acc"><button class="accb" data-k="f7"></button><div class="accp hide"><p id="predErr" class="err"></p><div class="cw" style="height:220px"><canvas id="cPred"></canvas></div><p class="note" id="predEst"></p></div></div>
   <div class="acc"><button class="accb" data-k="warn"></button><div class="accp hide" id="warnOut"></div></div>
   <div class="acc"><button class="accb" data-k="acc"></button><div class="accp hide" id="accOut"></div></div>
-  </div></div>
+  </div><div class="mini" data-m="pred"></div></div>
 </section>
 <section id="tab-report" class="tab"><div id="report"></div><div class="card">
   <div class="acc"><button class="accb" data-k="bed"></button><div class="accp hide"><label><span id="wkLbl"></span><input type="time" id="wkIn" value="07:00"></label><div id="bedOut"></div></div></div>
   <div class="acc"><button class="accb" data-k="debt"></button><div class="accp hide" id="debtOut"></div></div>
-</div><div class="card note" id="disc"></div><div class="card" id="bkBox"></div><div class="card" id="sampleBox"></div></section>
+<div class="mini" data-m="bed"></div></div><div class="card note" id="disc"></div><div class="card" id="bkBox"></div><div class="card" id="sampleBox"></div></section>
 </main>
 <nav><button data-t="home" class="on">🏠<br><span data-i18n="navHome"></span></button><button data-t="charts">📊<br><span data-i18n="navCharts"></span></button><button data-t="predict">🔮<br><span data-i18n="navPredict"></span></button><button data-t="report">🩺<br><span data-i18n="navReport"></span></button></nav>
 <dialog id="dlg"><form method="dialog" id="dlgForm"><h2 id="dlgTitle"></h2>

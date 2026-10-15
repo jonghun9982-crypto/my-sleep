@@ -82,7 +82,7 @@ matchMedia('(prefers-color-scheme: light)').addEventListener('change',e=>{if(!lo
 function applyLang(){document.documentElement.lang=lang;$('#btnLang').textContent=lang==='ko'?'EN':'한';
  document.querySelectorAll('[data-i18n]').forEach(e=>e.textContent=t(e.dataset.i18n));}
 $('#btnLang').onclick=()=>{lang=lang==='ko'?'en':'ko';localStorage.setItem(LANG,lang);applyLang();refresh();};
-function refresh(){render();if(typeof accRefresh==='function')accRefresh();}
+function refresh(){render();if(typeof miniRender==='function')miniRender();if(typeof accRefresh==='function')accRefresh();}
 // home
 function render(){
  $('#badge').classList.toggle('hide',!sample);
@@ -271,15 +271,48 @@ function report(){const S=stats();if(!S){$('#report').innerHTML='<div class="car
  const prevAns=$('#ans')?$('#ans').dataset.q:'';
  $('#report').innerHTML='<div class="card"><h2>'+t('rpTitle')+'</h2><p class="sum">'+t('rpSum',S.N.length,fmtH(S.avg),clk(S.bed)+' ±'+Math.round(S.bsd)+(lang==='ko'?'분':'m'),S.short.length)+'<br><span class="'+(S.avg>=7&&S.avg<=9?'good':'bad')+'">'+(S.avg<7?t('rpLow'):S.avg>9?t('rpHigh'):t('rpOk'))+'</span></p>'
  +'<form class="qa" id="qaForm"><input id="qIn" placeholder="'+t('askPh')+'" autocomplete="off"><button class="primary">'+t('ask')+'</button></form>'
- +'<div class="chips">'+t('chips').map(c=>'<button type="button">'+c+'</button>').join('')+'</div><div id="ans" class="ans hide"></div></div>'
+ +'<div class="chips">'+t('chips').map(c=>'<button type="button">'+c+'</button>').join('')+'</div><div id="ans" class="ans hide"></div><div class="mini" data-m="health"></div></div>'
 ;
  const ask=q=>{q=q.trim();if(!q)return;const a=$('#ans');a.dataset.q=q;a.classList.remove('hide');a.innerHTML='';const qs=document.createElement('span');qs.className='q';qs.textContent='Q. '+q;a.append(qs,document.createTextNode(answer(q)));};
  $('#qaForm').onsubmit=e=>{e.preventDefault();ask($('#qIn').value);$('#qIn').value='';};
  document.querySelectorAll('.chips button').forEach(b=>b.onclick=()=>ask(b.textContent));
- if(prevAns)ask(prevAns);}
+ if(prevAns)ask(prevAns);miniRender();}
 function fitH(){const r=document.documentElement.style;r.setProperty('--hh',document.querySelector('header').offsetHeight+'px');r.setProperty('--nh',document.querySelector('nav').offsetHeight+'px');}
 addEventListener('resize',fitH);addEventListener('orientationchange',fitH);if(window.visualViewport)visualViewport.addEventListener('resize',fitH);
 applyTheme();applyLang();render();fitH();
+
+// mini pattern reports
+const MINI_EMO={daily:'📊',trend:'📈',pred:'🔮',health:'🩺',bed:'🌙'};
+const miniOpen=new Set();
+function miniText(k){const ko=KO(),N=nights(),MORE=ko?'기록이 더 쌓이면 보여드릴게요 🌱':"I'll show this once more records build up 🌱";
+ const mins=v=>fmtM(v*60),D=DOW();
+ if(k==='daily'){const now=new Date(),c1=new Date(now),c2=new Date(now);c1.setDate(now.getDate()-7);c2.setDate(now.getDate()-14);
+  const a=N.filter(n=>n.w>c1),b=N.filter(n=>n.w>c2&&n.w<=c1);if(a.length<3||b.length<3)return MORE;
+  const d=mean(a.map(n=>n.dur))-mean(b.map(n=>n.dur)),sh=a.filter(n=>n.dur<7).length,same=Math.abs(d)<1/6;
+  return ko?'최근 7일 평균은 '+fmtH(mean(a.map(n=>n.dur)))+'로, 그 전 7일보다 '+(same?'거의 비슷해요.':mins(d)+' '+(d>0?'늘었어요.':'줄었어요.'))+' 최근 7일 중 7시간 미만은 '+sh+'일이에요.'
+   :'Your last-7-day average is '+fmtH(mean(a.map(n=>n.dur)))+', '+(same?'about the same as':mins(d)+' '+(d>0?'more than':'less than'))+' the previous 7 days. '+sh+' of the last 7 nights were under 7h.';}
+ const L=N.slice(-28);if(L.length<7)return MORE;
+ if(k==='trend'){const wd=L.filter(n=>n.dow>=1&&n.dow<=5),we=L.filter(n=>n.dow===0||n.dow===6);if(wd.length<3||we.length<2)return MORE;
+  const dd=mean(we.map(n=>n.dur))-mean(wd.map(n=>n.dur)),db=mean(we.map(n=>n.bed))-mean(wd.map(n=>n.bed));
+  return ko?'주말(기상일 기준)에는 평일보다 '+mins(dd)+' '+(dd>=0?'더':'덜')+' 자고, '+mins(db)+' '+(db>=0?'늦게':'일찍')+' 잠들어요.'+(Math.abs(db)>1?' 주말 리듬 차이가 1시간 넘게 커요.':' 평일·주말 리듬이 비슷한 편이에요.')
+   :'On weekends (by wake day) you sleep '+mins(dd)+' '+(dd>=0?'more':'less')+' and fall asleep '+mins(db)+' '+(db>=0?'later':'earlier')+' than on weekdays.'+(Math.abs(db)>1?' That is a rhythm gap of over 1 hour.':' Your weekday/weekend rhythm is fairly similar.');}
+ if(k==='pred'){const cnt=[0,0,0,0,0,0,0],tot=[0,0,0,0,0,0,0];L.forEach(n=>{tot[n.dow]++;if(n.dur<7)cnt[n.dow]++});
+  const mx=Math.max(...cnt);if(!mx)return ko?'최근 4주 동안 7시간 미만으로 잔 날이 없어요 👍':'No nights under 7h in the last 4 weeks 👍';
+  const days=cnt.map((c,i)=>c===mx?D[i]:null).filter(Boolean);const tw=new Date();tw.setDate(tw.getDate()+1);
+  return ko?'최근 4주 동안 7시간 미만으로 잔 날은 '+days.join('·')+'요일(기상일 기준)에 가장 많았어요 ('+mx+'회). 이 요일 전날 밤엔 조금 일찍 누워 보세요.'
+   :'Over the last 4 weeks, short nights (<7h) happened most before '+days.join('/')+' (wake day, '+mx+'×). Try heading to bed a bit earlier the night before.';}
+ if(k==='health'){const S=L.map(n=>n.dur),sv=sd(S)*60,sh=S.filter(x=>x<7).length;
+  return ko?'최근 '+L.length+'일 수면 시간은 평균 '+fmtH(mean(S))+', 편차 ±'+Math.round(sv)+'분이에요. 권장(7~9시간)에 맞은 날은 '+S.filter(x=>x>=7&&x<=9).length+'일, 부족한 날은 '+sh+'일이에요.'
+   :'Over the last '+L.length+' nights you averaged '+fmtH(mean(S))+' (±'+Math.round(sv)+' min). '+S.filter(x=>x>=7&&x<=9).length+' nights were within 7–9h and '+sh+' were short.';}
+ if(k==='bed'){const bs=sd(L.map(n=>n.bed))*60,ws=sd(L.map(n=>n.wk))*60;const g=bs<=30?0:bs<=60?1:2;
+  return ko?'최근 '+L.length+'일 취침 시각은 평균 '+clk(mean(L.map(n=>n.bed)))+' ±'+Math.round(bs)+'분, 기상은 ±'+Math.round(ws)+'분 흔들려요. '+['아주 규칙적이에요 👍','대체로 규칙적이에요.','들쭉날쭉한 편이라, 기상 시각부터 고정해 보세요.'][g]
+   :'Over the last '+L.length+' nights your bedtime averaged '+clk(mean(L.map(n=>n.bed)))+' ±'+Math.round(bs)+' min, wake time ±'+Math.round(ws)+' min. '+['Very consistent 👍','Mostly consistent.','Fairly irregular — try fixing your wake time first.'][g];}
+ return '';}
+function miniRender(){document.querySelectorAll('.mini').forEach(m=>{const k=m.dataset.m,o=miniOpen.has(k);
+ if(!m.firstChild){m.innerHTML='<button type="button" class="minib"></button><p class="minip hide"></p>';m.firstChild.onclick=()=>{o2=!miniOpen.has(k);o2?miniOpen.add(k):miniOpen.delete(k);miniRender();};}
+ const b=m.firstChild,p=m.lastChild;b.textContent=MINI_EMO[k];b.classList.toggle('on',o);b.setAttribute('aria-expanded',o);b.setAttribute('aria-label',KO()?'패턴 미니 리포트':'Pattern mini report');b.title=KO()?'패턴 보기':'Show pattern';
+ p.classList.toggle('hide',!o);if(o)p.textContent=miniText(k);});}
+let o2;miniRender();
 
 // backup
 function L(k,e){return lang==='ko'?k:e}
