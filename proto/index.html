@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="My Sleep">
+<meta name="theme-color" content="#0f1530"><title>My Sleep 프로토타입</title>
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<script>(function(){var t=localStorage.getItem('msproto.theme');if(!t)t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="stylesheet" href="css/style.css">
+<script src="js/chart.umd.min.js"></script>
+</head><body>
+<header><h1>My Sleep</h1><span class="badge" style="background:#7a5cff">PROTO</span><span id="badge" class="badge" data-i18n="sample"></span><span class="sp"></span>
+<button id="btnLang" class="icon" aria-label="Language">EN</button><button id="btnTheme" class="icon" aria-label="Theme">☀️</button></header>
+<main>
+<section id="tab-home" class="tab active">
+  <button id="btnToggle" class="tog"></button>
+  <div class="card"><div class="row"><h2 data-i18n="recent"></h2><span class="sp"></span><button id="btnAdd" class="small" data-i18n="addManual"></button><button id="btnFold" class="small"></button></div><ul id="list" class="hide"></ul></div>
+</section>
+<section id="tab-charts" class="tab">
+  <div class="card"><h2 data-i18n="daily14"></h2><div class="cw" style="height:220px"><canvas id="cDaily"></canvas></div>
+  <div class="legend"><span><i class="lg lg-low"></i><span data-i18n="lgLow"></span></span><span><i class="lg" style="background:#4fb3ff"></i>7–9h</span><span><i class="lg lg-high"></i><span data-i18n="lgHigh"></span></span></div></div>
+  <div class="card"><div class="row"><h2 id="trendTitle"></h2><div class="seg"><button data-p="week" class="on" data-i18n="week"></button><button data-p="month" data-i18n="month"></button></div></div>
+  <div class="cw" style="height:200px"><canvas id="cDur"></canvas></div><div class="cw" style="height:220px"><canvas id="cTime"></canvas></div>
+  <p class="note" data-i18n="timeNote"></p></div>
+</section>
+<section id="tab-predict" class="tab">
+  <div class="card"><h2 data-i18n="navPredict"></h2><div id="acc">
+  <div class="acc"><button class="accb" data-k="f7"></button><div class="accp hide"><p id="predErr" class="err"></p><div class="cw" style="height:220px"><canvas id="cPred"></canvas></div><p class="note" id="predEst"></p></div></div>
+  <div class="acc"><button class="accb" data-k="warn"></button><div class="accp hide" id="warnOut"></div></div>
+  <div class="acc"><button class="accb" data-k="acc"></button><div class="accp hide" id="accOut"></div></div>
+  </div></div>
+</section>
+<section id="tab-report" class="tab"><div id="report"></div><div class="card">
+  <div class="acc"><button class="accb" data-k="bed"></button><div class="accp hide"><label><span id="wkLbl"></span><input type="time" id="wkIn" value="07:00"></label><div id="bedOut"></div></div></div>
+  <div class="acc"><button class="accb" data-k="debt"></button><div class="accp hide" id="debtOut"></div></div>
+</div><div class="card note" id="disc"></div><div class="card" id="sampleBox"></div></section>
+</main>
+<nav><button data-t="home" class="on">🏠<br><span data-i18n="navHome"></span></button><button data-t="charts">📊<br><span data-i18n="navCharts"></span></button><button data-t="predict">🔮<br><span data-i18n="navPredict"></span></button><button data-t="report">🩺<br><span data-i18n="navReport"></span></button></nav>
+<dialog id="dlg"><form method="dialog" id="dlgForm"><h2 id="dlgTitle"></h2>
+<label><span data-i18n="fSleep"></span><input type="datetime-local" id="fSleep" required></label>
+<label><span data-i18n="fWake"></span><input type="datetime-local" id="fWake"></label>
+<p id="dlgErr" class="err"></p>
+<div class="row"><button type="button" id="dlgDel" class="danger" data-i18n="del"></button><span></span><button value="cancel" formnovalidate data-i18n="cancel"></button><button type="button" id="dlgSave" class="primary" data-i18n="save"></button></div>
+</form></dialog>
+<dialog id="dlgTag"><h2 id="tagTitle"></h2><div id="tagBody"></div><div class="row"><button type="button" id="tagSkip"></button><span class="sp"></span><button type="button" id="tagOk" class="primary"></button></div></dialog>
+<div id="onb" class="onb hide"><div class="onbIn"><h2 id="onbH"></h2><p id="onbP"></p><button id="onbOwn" class="primary big2"></button><button id="onbSample" class="big2"></button></div></div>
+<div id="sheet" class="sheetWrap hide"><div class="sheetIn"><b id="shH"></b><p id="shP"></p><button id="shOk" class="primary big2"></button><button id="shLater" class="small"></button></div></div>
+<input type="file" id="fileIn" accept=".json,application/json" style="display:none">
+<script src="js/app.js"></script>
+</body></html>
