@@ -88,3 +88,4 @@ html{height:-webkit-fill-available}
 .start .gbtn{max-width:300px;font-size:17px;padding:15px}
 .start .skip{background:none;border:0;color:var(--mut);text-decoration:underline;font-size:14px;padding:8px}
 .spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(150,150,150,.3);border-top-color:currentColor;animation:sp 0.9s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+#bkBox .row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}#bkBox .row button{white-space:nowrap;font-size:12px;padding:8px 4px;width:100%}
