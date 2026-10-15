@@ -4,7 +4,7 @@ const KEY='msproto.records.v1', MODE='msproto.sample.v1', LANG='msproto.lang', T
 const $=s=>document.querySelector(s);
 let lang=localStorage.getItem(LANG)||((navigator.language||'ko').startsWith('ko')?'ko':'en');
 const I={ko:{
- sample:'샘플 데이터',recent:'최근 기록',addManual:'+ 추가',unfold:'펼치기 ▾',fold:'숨기기 ▴',daily14:'일별 수면 시간 (최근 14일)',lgLow:'7h 미만 (0h 검정)',lgHigh:'9h 초과 (16h+ 검정)',
+ sample:'샘플 ✕',recent:'최근 기록',addManual:'+ 추가',unfold:'펼치기 ▾',fold:'숨기기 ▴',daily14:'일별 수면 시간 (최근 14일)',lgLow:'7h 미만 (0h 검정)',lgHigh:'9h 초과 (16h+ 검정)',
  week:'주간',month:'월간',timeNote:'취침/기상 시각은 자정을 넘는 경우를 위해 “18시 기준 경과 시간”으로 계산 후 실제 시각으로 표시합니다.',
  pred7:'앞으로 7일 예측',predictBtn:'예측하기',predNote:'방법: 최근 14일 가중평균 + 요일 보정, 범위 = 최근 28일 ±1 표준편차 (추정치).',
  navHome:'기록',navCharts:'차트',navPredict:'예측',navReport:'리포트',fSleep:'잠든 시각',fWake:'기상 시각 (비워두면 수면 중)',del:'삭제',cancel:'취소',save:'저장',
@@ -23,7 +23,7 @@ const I={ko:{
  disc:'⚠️ 기록을 바탕으로 한 일반 정보이며 의학적 진단이나 조언이 아닙니다. 수면 문제가 계속되면 의사와 상담하세요.',sampleCalc:'현재 샘플 데이터로 계산된 결과입니다.',
  fallback:'잘 이해하지 못했어요. 이런 걸 물어볼 수 있어요:\n• 평균 수면 / 어젯밤 / 가장 오래·짧게 잔 날\n• 가장 늦게·일찍 잔 날 / 평균 기상 시각\n• 주말 vs 평일 / 사회적 시차 / 요일별\n• 수면 부족한 날 / 수면 부채 / 추세 / 규칙성\n• 언제 자야 해? / 적정 수면시간 / 예측\n• 팁: 카페인, 낮잠, 운동, 휴대폰, 술, 불면, 기록 수'
 },en:{
- sample:'Sample data',recent:'Recent records',addManual:'+ Add',unfold:'Show ▾',fold:'Hide ▴',daily14:'Daily sleep (last 14 days)',lgLow:'<7h (0h black)',lgHigh:'>9h (16h+ black)',
+ sample:'Sample ✕',recent:'Recent records',addManual:'+ Add',unfold:'Show ▾',fold:'Hide ▴',daily14:'Daily sleep (last 14 days)',lgLow:'<7h (0h black)',lgHigh:'>9h (16h+ black)',
  week:'Week',month:'Month',timeNote:'Bed/wake times are computed as hours after 18:00 (to handle midnight) and shown as clock times.',
  pred7:'Next 7 days forecast',predictBtn:'Predict',predNote:'Method: 14-day weighted average + day-of-week adjustment; range = ±1 SD of last 28 days (estimate).',
  navHome:'Log',navCharts:'Charts',navPredict:'Predict',navReport:'Report',fSleep:'Fell asleep',fWake:'Awake time (blank = still asleep)',del:'Delete',cancel:'Cancel',save:'Save',
@@ -94,18 +94,18 @@ function render(){
  $('#btnFold').textContent=folded?t('unfold'):t('fold');$('#list').classList.toggle('hide',folded);
  $('#list').innerHTML=all.slice(0,10).map(r=>{const s=new Date(r.sleep),w=r.wake&&new Date(r.wake);
   return '<li><span><span class="d">'+md(new Date(s-12*36e5))+' '+t('night')+'</span> '+hm(s)+' → '+(w?hm(w)+' <span class="note">'+fmtH((w-s)/36e5)+'</span>':t('sleeping'))+tagTxt(r)+'</span><span>'+(w?'<button class="small" data-tag="'+r.id+'">'+L('태그','Tag')+'</button> ':'')+'<button class="small" data-id="'+r.id+'">'+t('edit')+'</button></span></li>'}).join('')||'<li class="note">'+t('noRec')+'</li>';
- $('#sampleBox').innerHTML=sample?'<p>⚙️ '+t('sampleInfo')+'</p><button id="btnOwn" class="small">'+t('useOwn')+'</button>'
+ $('#sampleBox').innerHTML=sample?'<p>⚙️ '+t('sampleInfo')+'</p><button id="btnStart" class="small">'+L('시작 화면으로 돌아가기','Back to start screen')+'</button>'
   :'<p class="note">'+t('ownInfo',own.length)+'</p><button id="btnSample" class="small">'+t('showSample')+'</button>';
  $('#sampleBox').insertAdjacentHTML('beforebegin','');bkRender();
- const bo=$('#btnOwn');if(bo)bo.onclick=()=>{if(confirm(t('cfOwn'))){sample=false;localStorage.setItem(MODE,'off');render();}};
+ const bst=$('#btnStart');if(bst)bst.onclick=toStart;const bo=$('#btnOwn');if(bo)bo.onclick=()=>{if(confirm(t('cfOwn'))){sample=false;localStorage.setItem(MODE,'off');render();}};
  const bs=$('#btnSample');if(bs)bs.onclick=()=>{sample=true;localStorage.setItem(MODE,'on');render();};
  document.querySelectorAll('#list button[data-id]').forEach(b=>b.onclick=()=>openDlg(b.dataset.id));document.querySelectorAll('#list button[data-tag]').forEach(b=>b.onclick=()=>openTag(b.dataset.tag));
  if($('#tab-charts').classList.contains('active'))drawCharts();
  if($('#tab-report').classList.contains('active'))report();
 }
 $('#btnFold').onclick=()=>{folded=!folded;render();};
-$('#badge').style.cursor='pointer';$('#badge').onclick=()=>document.querySelector('nav button[data-t=report]').click();
-function guardSample(){if(sample){alert(t('guard'));return true}return false}
+$('#badge').style.cursor='pointer';$('#badge').onclick=()=>toStart();
+function guardSample(){if(sample){if(confirm(L('지금은 예시 데이터를 보고 있어요. 시작 화면으로 돌아가서 내 기록을 시작할까요?','You are viewing sample data. Go back to the start screen to begin your own records?')))toStart();return true}return false}
 function setTh(th){document.documentElement.dataset.theme=th;localStorage.setItem(THEME,th);applyTheme();}
 $('#btnToggle').onclick=()=>{if(guardSample())return;const o=own.find(r=>!r.wake);
  if(o){o.wake=new Date().toISOString();setTh('light');}else{own.push({id:uid(),sleep:new Date().toISOString(),wake:null});setTh('dark');}save();refresh();};
@@ -319,6 +319,7 @@ function nag(){if(sample||own.length<1)return;const lb=localStorage.getItem(BK),
  $('#shH').textContent=L(lb?'7일 넘게 백업을 안 하셨어요':'아직 백업이 없어요',lb?'No backup for 7+ days':'No backup yet');$('#shP').textContent=L('폰을 바꾸거나 사파리 데이터를 지우면 기록이 사라질 수 있어요.','Records can be lost if you change phones or clear Safari data.');
  $('#shOk').textContent=L('지금 백업','Back up now');$('#shLater').textContent=L('나중에','Later');$('#sheet').classList.remove('hide');}
 $('#shOk').onclick=()=>{$('#sheet').classList.add('hide');doBackup();};$('#shLater').onclick=()=>$('#sheet').classList.add('hide');
+function toStart(){localStorage.removeItem(MODE);document.querySelector('nav button[data-t=home]').click();onb();}
 // onboarding
 function onb(){if(localStorage.getItem(MODE))return nag();$('#onbH').textContent=L('처음 오셨네요','Welcome');$('#onbP').textContent=L('버튼 한 번으로 잠든 시간과 일어난 시간을 기록해요. 기록은 이 아이폰에만 저장돼요.','One tap records when you sleep and wake. Records stay on this iPhone only.');
  $('#onbOwn').textContent=L('내 기록 시작하기','Start my records');$('#onbSample').textContent=L('예시 데이터로 둘러보기','Explore with sample data');$('#onb').classList.remove('hide');}

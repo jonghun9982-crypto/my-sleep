@@ -66,3 +66,4 @@ html{height:-webkit-fill-available}
 .chips2{display:flex;gap:6px;margin:4px 0 12px}.chips2 button{flex:1;padding:8px 0;border-radius:12px}.chips2 button.on{background:#4a7bd8;color:#fff}
 .tags{font-size:11px;opacity:.7;margin-left:4px}.hide{display:none!important}
 .bk button{display:block;width:100%;margin:6px 0;text-align:left}
+header h1,.badge{white-space:nowrap}
