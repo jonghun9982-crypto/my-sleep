@@ -282,7 +282,6 @@ addEventListener('resize',fitH);addEventListener('orientationchange',fitH);if(wi
 applyTheme();applyLang();render();fitH();
 
 // mini pattern reports
-const MINI_EMO={daily:'📊',trend:'📈',pred:'🔮',health:'🩺',bed:'🌙'};
 const miniOpen=new Set();
 function miniText(k){const ko=KO(),N=nights(),MORE=ko?'기록이 더 쌓이면 보여드릴게요 🌱':"I'll show this once more records build up 🌱";
  const mins=v=>fmtM(v*60),D=DOW();
@@ -309,10 +308,10 @@ function miniText(k){const ko=KO(),N=nights(),MORE=ko?'기록이 더 쌓이면 �
    :'Over the last '+L.length+' nights your bedtime averaged '+clk(mean(L.map(n=>n.bed)))+' ±'+Math.round(bs)+' min, wake time ±'+Math.round(ws)+' min. '+['Very consistent 👍','Mostly consistent.','Fairly irregular — try fixing your wake time first.'][g];}
  return '';}
 function miniRender(){document.querySelectorAll('.mini').forEach(m=>{const k=m.dataset.m,o=miniOpen.has(k);
- if(!m.firstChild){m.innerHTML='<button type="button" class="minib"></button><p class="minip hide"></p>';m.firstChild.onclick=()=>{o2=!miniOpen.has(k);o2?miniOpen.add(k):miniOpen.delete(k);miniRender();};}
- const b=m.firstChild,p=m.lastChild;b.textContent=MINI_EMO[k];b.classList.toggle('on',o);b.setAttribute('aria-expanded',o);b.setAttribute('aria-label',KO()?'패턴 미니 리포트':'Pattern mini report');b.title=KO()?'패턴 보기':'Show pattern';
+ if(!m.firstChild){m.innerHTML='<button type="button" class="minib"></button><p class="minip hide"></p>';m.firstChild.onclick=()=>{if(miniOpen.has(k))miniOpen.delete(k);else miniOpen.add(k);miniRender();};}
+ const b=m.firstChild,p=m.lastChild;b.textContent=KO()?'리포트':'Report';b.classList.toggle('on',o);b.setAttribute('aria-expanded',o);b.setAttribute('aria-label',KO()?'패턴 미니 리포트':'Pattern mini report');b.title=KO()?'패턴 보기':'Show pattern';
  p.classList.toggle('hide',!o);if(o)p.textContent=miniText(k);});}
-let o2;miniRender();
+miniRender();
 
 // backup
 function L(k,e){return lang==='ko'?k:e}
