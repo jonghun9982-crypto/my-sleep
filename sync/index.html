@@ -11,7 +11,7 @@
 <script src="../js/chart.umd.min.js"></script>
 </head><body>
 <header><h1>My Sleep</h1><span id="badge" class="badge" data-i18n="sample"></span><span class="sp"></span>
-<button id="btnLang" class="icon" aria-label="Language">EN</button><button id="btnTheme" class="icon" aria-label="Theme">☀️</button></header>
+<button id="syncDot" class="sdot" aria-label="Account"><i></i></button><button id="btnLang" class="icon" aria-label="Language">EN</button><button id="btnTheme" class="icon" aria-label="Theme">☀️</button></header>
 <main>
 <section id="tab-home" class="tab active">
   <button id="btnToggle" class="tog"></button>
@@ -34,9 +34,11 @@
 <section id="tab-report" class="tab"><div id="report"></div><div class="card">
   <div class="acc"><button class="accb" data-k="bed"></button><div class="accp hide"><label><span id="wkLbl"></span><input type="time" id="wkIn" value="07:00"></label><div id="bedOut"></div></div></div>
   <div class="acc"><button class="accb" data-k="debt"></button><div class="accp hide" id="debtOut"></div></div>
-<div class="mini" data-m="bed"></div></div><div class="card note" id="disc"></div><div class="card" id="bkBox"></div><div class="card sync" id="syncBox"></div><div class="card" id="sampleBox"></div></section>
+<div class="mini" data-m="bed"></div></div><div class="card note" id="disc"></div><div class="card" id="bkBox"></div><div class="card" id="sampleBox"></div></section>
+<section id="tab-account" class="tab"><div class="card sync" id="syncBox"></div></section>
 </main>
-<nav><button data-t="home" class="on">🏠<br><span data-i18n="navHome"></span></button><button data-t="charts">📊<br><span data-i18n="navCharts"></span></button><button data-t="predict">🔮<br><span data-i18n="navPredict"></span></button><button data-t="report"><img class="navic" src="../icons/icon-192.png" alt="" aria-hidden="true"><br><span data-i18n="navReport"></span></button></nav>
+<nav><button data-t="home" class="on">🏠<br><span data-i18n="navHome"></span></button><button data-t="charts">📊<br><span data-i18n="navCharts"></span></button><button data-t="predict">🔮<br><span data-i18n="navPredict"></span></button><button data-t="report"><img class="navic" src="../icons/icon-192.png" alt="" aria-hidden="true"><br><span data-i18n="navReport"></span></button><button data-t="account">👤<br><span data-i18n="navAccount"></span></button></nav>
+<div id="startScr" class="start hide"></div>
 <dialog id="dlg"><form method="dialog" id="dlgForm"><h2 id="dlgTitle"></h2>
 <label><span data-i18n="fSleep"></span><input type="datetime-local" id="fSleep" required></label>
 <label><span data-i18n="fWake"></span><input type="datetime-local" id="fWake"></label>
