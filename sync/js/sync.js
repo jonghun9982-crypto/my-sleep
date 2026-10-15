@@ -1,11 +1,11 @@
 // My Sleep — optional Google sign-in sync (prototype). Local-first; app works fully without login.
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
-import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut,setPersistence,browserLocalPersistence} from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+import {initializeAuth,indexedDBLocalPersistence,browserLocalPersistence,browserPopupRedirectResolver,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
 import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,collection,doc,getDocs,writeBatch,setDoc,deleteDoc,onSnapshot,serverTimestamp} from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
 const cfg={apiKey:"AIzaSyB2H5OB3Dv3qCD2n51qAIm4s6Cun91ihAc",authDomain:"my-sleep-sync-8340c.firebaseapp.com",projectId:"my-sleep-sync-8340c",storageBucket:"my-sleep-sync-8340c.firebasestorage.app",messagingSenderId:"470618915839",appId:"1:470618915839:web:f6033f4c442f4f171d5dca"};
 const LAST='mssync.lastSync';
-const app=initializeApp(cfg),auth=getAuth(app);
+const app=initializeApp(cfg),auth=initializeAuth(app,{persistence:[indexedDBLocalPersistence,browserLocalPersistence],popupRedirectResolver:browserPopupRedirectResolver});
 let db;try{db=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});}catch(e){db=initializeFirestore(app,{});}
 const $=s=>document.querySelector(s),KO=()=>window.MSB.lang()==='ko',L=(k,e)=>KO()?k:e;
 let user=null,unsub=null,known=new Map(),busy=false,err='';
@@ -18,12 +18,15 @@ const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='M
 const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 
 const SKIP='mssync.skipLogin',REDIR='mssync.redirecting';
-let ready=false,pending=!!sessionStorage.getItem(REDIR),signing=false;
-async function login(){err='';signing=true;render();const p=new GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});
- try{await setPersistence(auth,browserLocalPersistence);
-  if(isIOS||standalone){sessionStorage.setItem(REDIR,'1');await signInWithRedirect(auth,p);return}
-  try{await signInWithPopup(auth,p);}catch(e){if(/popup-blocked|operation-not-supported/.test(e.code||'')){sessionStorage.setItem(REDIR,'1');await signInWithRedirect(auth,p);}else throw e}
- }catch(e){err=e.code||String(e);}signing=false;render();}
+let ready=false,pending=!!sessionStorage.getItem(REDIR)&&Date.now()-(+sessionStorage.getItem(REDIR)||0)<120000,signing=false;if(!pending)sessionStorage.removeItem(REDIR);
+// Popup first on every platform (incl. iOS Safari). signInWithPopup must be the first call in the click handler (no awaits before it).
+function login(){err='';const p=new GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});
+ const pr=signInWithPopup(auth,p);signing=true;render();
+ pr.then(()=>{signing=false;render();}).catch(e=>{const c=e.code||String(e);
+  if(c==='auth/operation-not-supported-in-environment'){sessionStorage.setItem(REDIR,String(Date.now()));pending=true;signing=false;render();
+   signInWithRedirect(auth,p).catch(e2=>{clearPending();err=e2.code||String(e2);render();});return}
+  signing=false;err=c;render();});}
+function clearPending(){pending=false;sessionStorage.removeItem(REDIR);}
 
 // merge local+cloud on login (union by id; skip duplicates with same id or same sleep minute, like import)
 async function initialMerge(){busy=true;render();
@@ -51,7 +54,9 @@ async function changed(own){if(!user||busy)return;const cur=new Map(own.map(r=>[
  if(!ops.length)return;try{await Promise.all(ops);stamp();}catch(e){err=e.code||String(e);render();}}
 
 const esc=x=>String(x).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
-function errHint(e){if(e==='redirect-no-user')return L('Google에서 돌아왔지만 로그인 정보를 받지 못했어요. Safari의 사이트 간 추적 방지 때문일 수 있어요. 홈 화면 앱 대신 Safari 탭에서 다시 시도하거나, 잠시 후 다시 눌러 보세요.','Returned from Google without a signed-in user. Safari tracking prevention may block it. Try again in a Safari tab (not the home-screen app), or retry in a moment.');
+function errHint(e){if(standalone&&/redirect-no-user|operation-not-supported|popup/.test(e))return L('홈 화면 앱에서는 Google 로그인이 막힐 수 있어요. Safari 탭에서 이 주소를 열어 로그인해 주세요. 로그인 후에는 기록이 연동돼요.','Google sign-in may be blocked in the home-screen app. Open this address in a Safari tab to sign in.');
+ if(e==='redirect-no-user')return L('Google에서 돌아왔지만 로그인 정보를 받지 못했어요. Safari의 사이트 간 추적 방지 때문일 수 있어요. 홈 화면 앱 대신 Safari 탭에서 다시 시도하거나, 잠시 후 다시 눌러 보세요.','Returned from Google without a signed-in user. Safari tracking prevention may block it. Try again in a Safari tab (not the home-screen app), or retry in a moment.');
+ if(/popup-blocked/.test(e))return L('팝업이 차단됐어요. 버튼을 다시 눌러 주세요(Safari 설정에서 팝업 차단을 끄면 더 확실해요).','The popup was blocked. Tap the button again, or allow popups in Safari settings.');
  if(/popup-closed|cancelled/.test(e))return L('로그인 창이 닫혔어요. 다시 시도해 주세요.','The sign-in window was closed. Please try again.');
  if(/unauthorized-domain/.test(e))return L('이 주소가 Firebase 승인 도메인에 등록되지 않았어요.','This domain is not authorized in Firebase.');
  if(/network/.test(e))return L('인터넷 연결을 확인해 주세요.','Check your internet connection.');
@@ -68,14 +73,18 @@ function render(){const box=$('#syncBox'),last=localStorage.getItem(LAST),fmt=d=
   box.innerHTML=h+errBox();}
  const st=$('#startScr');if(st){const show=!user&&!localStorage.getItem(SKIP)&&(ready||pending);
   st.classList.toggle('hide',!show);
-  if(show)st.innerHTML='<img src="../icons/icon-192.png" alt=""><h1>My Sleep</h1>'+(wait?'<div class="spin"></div><p>'+L('로그인 중…','Signing in…')+'</p>':'<p>'+L('기기 간 기록을 동기화하려면 로그인하세요','Sign in to sync your records across devices')+'</p>'+gbtn()+'<button class="skip">'+L('로그인 없이 사용','Use without signing in')+'</button>'+errBox());}
+  if(show)st.innerHTML='<img src="../icons/icon-192.png" alt=""><h1>My Sleep</h1>'+(wait?'<div class="spin"></div><p>'+L('로그인 중…','Signing in…')+'</p>':'<p>'+L('기기 간 기록을 동기화하려면 로그인하세요','Sign in to sync your records across devices')+'</p>'+errBox()+'<button class="gbtn sIn">'+(err?L('다시 시도','Try again'):L('Google로 로그인','Sign in with Google'))+'</button>')+'<button class="skip">'+L('닫기 · 로그인 없이 사용','Close · use without signing in')+'</button>';}
  document.querySelectorAll('.sIn').forEach(b=>b.onclick=login);
- const sk=document.querySelector('.start .skip');if(sk)sk.onclick=()=>{localStorage.setItem(SKIP,'1');render();};
+ const sk=document.querySelector('.start .skip');if(sk)sk.onclick=()=>{localStorage.setItem(SKIP,'1');signing=false;clearPending();render();};
  const n=document.querySelector('.sNow');if(n)n.onclick=()=>initialMerge().catch(e=>{busy=false;err=e.code||String(e);render();});
  const o=document.querySelector('.sOut');if(o)o.onclick=async()=>{if(unsub)unsub();unsub=null;known.clear();await signOut(auth);};}
 
 window.MSYNC={changed,render};
-getRedirectResult(auth).then(r=>{if(pending&&!r&&!auth.currentUser)err='redirect-no-user';}).catch(e=>{err=e.code||String(e);}).finally(()=>{pending=false;sessionStorage.removeItem(REDIR);render();});
+const goHome=()=>{const b=document.querySelector('nav button[data-t=home]');if(b)b.click();};
+getRedirectResult(auth).then(r=>{if(pending&&!r&&!auth.currentUser)err='redirect-no-user';}).catch(e=>{err=e.code||String(e);}).finally(()=>{clearPending();render();});
+setTimeout(()=>{if(pending){clearPending();if(!auth.currentUser&&!err)err='redirect-no-user';render();}},8000); // never spin forever
 setTimeout(()=>{if(!ready){ready=true;render();}},3000); // fallback if auth init is slow
-onAuthStateChanged(auth,u=>{user=u;ready=true;if(u)err='';render();if(u)initialMerge().catch(e=>{busy=false;err=e.code||String(e);render();});else if(unsub){unsub();unsub=null}});
+onAuthStateChanged(auth,u=>{const was=user;user=u;ready=true;
+ if(u){err='';signing=false;clearPending();if(!was){const st=$('#startScr');if(st)st.classList.add('hide');goHome();}render();initialMerge().catch(e=>{busy=false;err=e.code||String(e);render();});}
+ else{render();if(unsub){unsub();unsub=null}}});
 render();
