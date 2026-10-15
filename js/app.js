@@ -97,7 +97,7 @@ function render(){
   :'<p class="note">'+t('ownInfo',own.length)+'</p><button id="btnSample" class="small">'+t('showSample')+'</button>';
  const bo=$('#btnOwn');if(bo)bo.onclick=()=>{if(confirm(t('cfOwn'))){sample=false;localStorage.setItem(MODE,'off');render();}};
  const bs=$('#btnSample');if(bs)bs.onclick=()=>{sample=true;localStorage.setItem(MODE,'on');render();};
- document.querySelectorAll('#list button').forEach(b=>b.onclick=()=>openDlg(b.dataset.id));
+ bkRender();document.querySelectorAll('#list button').forEach(b=>b.onclick=()=>openDlg(b.dataset.id));
  if($('#tab-charts').classList.contains('active'))drawCharts();
  if($('#tab-report').classList.contains('active'))report();
 }
@@ -280,5 +280,18 @@ function report(){const S=stats();if(!S){$('#report').innerHTML='<div class="car
 function fitH(){const r=document.documentElement.style;r.setProperty('--hh',document.querySelector('header').offsetHeight+'px');r.setProperty('--nh',document.querySelector('nav').offsetHeight+'px');}
 addEventListener('resize',fitH);addEventListener('orientationchange',fitH);if(window.visualViewport)visualViewport.addEventListener('resize',fitH);
 applyTheme();applyLang();render();fitH();
+
+// backup
+function L(k,e){return lang==='ko'?k:e}
+function pad2(n){return String(n).padStart(2,'0')}
+function dl(name,text,type){const b=new Blob([text],{type});const f=new File([b],name,{type});
+ if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:name}).catch(()=>{});}else{const u=URL.createObjectURL(b);const x=document.createElement('a');x.href=u;x.download=name;x.click();setTimeout(()=>URL.revokeObjectURL(u),2000);}}
+function bkRender(){const d=new Date(),st=d.getFullYear()+pad2(d.getMonth()+1)+pad2(d.getDate());
+ $('#bkBox').innerHTML='<h2>'+L('데이터 내보내기·불러오기','Export & import data')+'</h2><p class="note">'+L('내 기록을 파일로 저장해 두면, 폰을 바꾸거나 사파리 데이터를 지워도 다시 불러올 수 있어요.','Save your records to a file so you can restore them after changing phones or clearing Safari data.')+'</p><div class="row"><button id="bkSave" class="small">'+L('내보내기','Export')+'</button><button id="bkLoad" class="small">'+L('불러오기','Import')+'</button></div>';
+ $('#bkSave').onclick=()=>{if(!own.length){alert(L('내보낼 내 기록이 없어요.','No records to export.'));return}dl('mysleep-backup-'+st+'.json',JSON.stringify({app:'MySleep',version:1,exportedAt:new Date().toISOString(),sleep:own},null,1),'application/json');};
+ $('#bkLoad').onclick=()=>$('#fileIn').click();}
+$('#fileIn').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(s=>{try{const d=JSON.parse(s);const arr=Array.isArray(d)?d:d.sleep;if(!Array.isArray(arr))throw 0;
+ if(!confirm(L(arr.length+'건을 불러와 지금 기록과 합칠까요?','Merge '+arr.length+' records into your records?')))return;const ids=new Set(own.map(r=>r.id));let n=0;arr.forEach(r=>{if(r&&r.sleep&&!ids.has(r.id)){own.push(r);n++}});
+ if(sample){sample=false;localStorage.setItem(MODE,'off');}localStorage.setItem(KEY,JSON.stringify(own));refresh();alert(L(n+'건을 새로 불러왔어요.',n+' new records imported.'));}catch(_){alert(L('My Sleep 백업 파일이 아니에요.','Not a My Sleep backup file.'))}});e.target.value='';};
 setInterval(()=>{if($('#tab-home').classList.contains('active')&&!$('#dlg').open)render()},60000);
 })();

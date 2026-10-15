@@ -35,7 +35,7 @@
 <section id="tab-report" class="tab"><div id="report"></div><div class="card">
   <div class="acc"><button class="accb" data-k="bed"></button><div class="accp hide"><label><span id="wkLbl"></span><input type="time" id="wkIn" value="07:00"></label><div id="bedOut"></div></div></div>
   <div class="acc"><button class="accb" data-k="debt"></button><div class="accp hide" id="debtOut"></div></div>
-</div><div class="card note" id="disc"></div><div class="card" id="sampleBox"></div></section>
+</div><div class="card note" id="disc"></div><div class="card" id="bkBox"></div><div class="card" id="sampleBox"></div></section>
 </main>
 <nav><button data-t="home" class="on">🏠<br><span data-i18n="navHome"></span></button><button data-t="charts">📊<br><span data-i18n="navCharts"></span></button><button data-t="predict">🔮<br><span data-i18n="navPredict"></span></button><button data-t="report">🩺<br><span data-i18n="navReport"></span></button></nav>
 <dialog id="dlg"><form method="dialog" id="dlgForm"><h2 id="dlgTitle"></h2>
@@ -44,5 +44,6 @@
 <p id="dlgErr" class="err"></p>
 <div class="row"><button type="button" id="dlgDel" class="danger" data-i18n="del"></button><span></span><button value="cancel" formnovalidate data-i18n="cancel"></button><button type="button" id="dlgSave" class="primary" data-i18n="save"></button></div>
 </form></dialog>
+<input type="file" id="fileIn" accept=".json,application/json" style="display:none">
 <script src="js/app.js"></script>
 </body></html>
