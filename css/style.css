@@ -65,3 +65,5 @@ html{height:-webkit-fill-available}
 [data-theme=light] .minib{background:rgba(255,255,255,.5);border-color:rgba(0,0,0,.1)}
 [data-theme=light] .minib.on{background:rgba(255,255,255,.75);border-color:rgba(0,0,0,.18)}
 [data-theme=light] .minip{background:rgba(255,255,255,.55);border-color:rgba(0,0,0,.08)}
+.rpic{width:1.2em;height:1.2em;border-radius:.28em;vertical-align:-.25em;margin-right:.35em;display:inline-block}
+.navic{width:1.15em;height:1.15em;border-radius:.28em;vertical-align:-.15em;display:inline-block}

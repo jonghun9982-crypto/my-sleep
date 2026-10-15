@@ -14,7 +14,7 @@ const I={ko:{
  noChart:'차트 라이브러리를 불러오지 못했습니다.',sleepH:'수면 시간(h)',hours:'시간',clock:'시각',trendW:'주간 추이 (12주)',trendM:'월간 추이 (6개월)',avgDur:'평균 수면 시간',avgBed:'평균 취침 시각',avgWake:'평균 기상 시각',
  mon:m=>m+'월',actual:'실제 수면',predicted:'예측 수면',bedAct:'실제 취침',bedPred:'예상 취침 창',pDay:'날짜',pDur:'예상 수면',pRange:'범위',
  needPred:n=>'예측하려면 최소 7일 이상의 기록이 필요합니다 (현재 '+n+'일).',predSum:(a,b,c)=>'🔮 다음 7일 평균 약 <b>'+a+'</b>, 취침 <b>'+b+'~'+c+'</b> 예상 <span class="est">추정치</span>',
- rpTitle:'🩺 건강 리포트',needRp:'리포트를 만들려면 최소 5일 기록이 필요합니다.',
+ rpTitle:'건강 리포트',needRp:'리포트를 만들려면 최소 5일 기록이 필요합니다.',
  rpSum:(n,a,b,s)=>'최근 '+n+'일 평균 <b>'+a+'</b> · 취침 '+b+' · 7시간 미만 '+s+'일',
  rpOk:'권장 범위(7~9시간) 안이에요 👍',rpLow:'권장(7~9시간)보다 조금 부족해요.',rpHigh:'권장(7~9시간)보다 길어요.',
  askPh:'수면에 대해 물어보세요…',ask:'질문',
@@ -33,7 +33,7 @@ const I={ko:{
  noChart:'Failed to load chart library.',sleepH:'Sleep (h)',hours:'hours',clock:'time',trendW:'Weekly trend (12 wks)',trendM:'Monthly trend (6 mo)',avgDur:'Avg sleep',avgBed:'Avg bedtime',avgWake:'Avg wake time',
  mon:m=>['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1],actual:'Actual sleep',predicted:'Predicted sleep',bedAct:'Actual bedtime',bedPred:'Bedtime window',pDay:'Date',pDur:'Est. sleep',pRange:'Range',
  needPred:n=>'Need at least 7 nights to predict (currently '+n+').',predSum:(a,b,c)=>'🔮 Next 7 days: ~<b>'+a+'</b> avg, bedtime <b>'+b+'–'+c+'</b> <span class="est">estimate</span>',
- rpTitle:'🩺 Health report',needRp:'Need at least 5 nights for a report.',
+ rpTitle:'Health report',needRp:'Need at least 5 nights for a report.',
  rpSum:(n,a,b,s)=>'Last '+n+' nights: avg <b>'+a+'</b> · bedtime '+b+' · '+s+' nights under 7h',
  rpOk:'Within the recommended 7–9h 👍',rpLow:'A bit below the recommended 7–9h.',rpHigh:'Above the recommended 7–9h.',
  askPh:'Ask about your sleep…',ask:'Ask',
@@ -267,9 +267,9 @@ function answer(q){const S=stats();const s=q.toLowerCase().replace(/[\s?!.,~]/g,
   avg:()=>ko?'최근 '+S.N.length+'일 평균 수면은 '+fmtH(S.avg)+', 평균 취침 '+clk(S.bed)+', 기상 '+clk(S.wk)+'이에요.':'Last '+S.N.length+' nights: average '+fmtH(S.avg)+', bedtime '+clk(S.bed)+', wake '+clk(S.wk)+'.',
   hello:()=>ko?'안녕하세요! 아래 추천 질문을 눌러 보거나 수면에 대해 자유롭게 물어보세요.':'Hi! Tap a suggestion below or ask anything about your sleep.'};
  return it?A[it]():t('fallback');}
-function report(){const S=stats();if(!S){$('#report').innerHTML='<div class="card"><h2>'+t('rpTitle')+'</h2><p>'+t('needRp')+'</p></div>';return}
+function report(){const S=stats();if(!S){$('#report').innerHTML='<div class="card"><h2><img class="rpic" src="icons/icon-192.png" alt="" aria-hidden="true">'+t('rpTitle')+'</h2><p>'+t('needRp')+'</p></div>';return}
  const prevAns=$('#ans')?$('#ans').dataset.q:'';
- $('#report').innerHTML='<div class="card"><h2>'+t('rpTitle')+'</h2><p class="sum">'+t('rpSum',S.N.length,fmtH(S.avg),clk(S.bed)+' ±'+Math.round(S.bsd)+(lang==='ko'?'분':'m'),S.short.length)+'<br><span class="'+(S.avg>=7&&S.avg<=9?'good':'bad')+'">'+(S.avg<7?t('rpLow'):S.avg>9?t('rpHigh'):t('rpOk'))+'</span></p>'
+ $('#report').innerHTML='<div class="card"><h2><img class="rpic" src="icons/icon-192.png" alt="" aria-hidden="true">'+t('rpTitle')+'</h2><p class="sum">'+t('rpSum',S.N.length,fmtH(S.avg),clk(S.bed)+' ±'+Math.round(S.bsd)+(lang==='ko'?'분':'m'),S.short.length)+'<br><span class="'+(S.avg>=7&&S.avg<=9?'good':'bad')+'">'+(S.avg<7?t('rpLow'):S.avg>9?t('rpHigh'):t('rpOk'))+'</span></p>'
  +'<form class="qa" id="qaForm"><input id="qIn" placeholder="'+t('askPh')+'" autocomplete="off"><button class="primary">'+t('ask')+'</button></form>'
  +'<div class="chips">'+t('chips').map(c=>'<button type="button">'+c+'</button>').join('')+'</div><div id="ans" class="ans hide"></div><div class="mini" data-m="health"></div></div>'
 ;
