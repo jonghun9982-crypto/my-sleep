@@ -12,7 +12,7 @@ const I={ko:{
  pred7:'앞으로 7일 예측',predictBtn:'예측하기',predNote:'방법: 최근 14일 가중평균 + 요일 보정, 범위 = 최근 28일 ±1 표준편차 (추정치).',
  navHome:'기록',navCharts:'차트',navPredict:'예측',navReport:'리포트',navAccount:'계정',fSleep:'잠든 시각',fWake:'기상 시각 (비워두면 수면 중)',del:'삭제',cancel:'취소',save:'저장',
  editRec:'기록 수정',addRec:'기록 추가',edit:'수정',night:'밤',sleeping:'수면 중',noRec:'기록이 없습니다',sleepingSince:(a,b)=>'😴 '+a+'부터 수면 중 · '+b+' 경과',
- sampleInfo:'지금 보이는 기록은 체험용 가짜 데이터(약 90일)입니다.',useOwn:'샘플 지우고 내 기록 사용하기',ownInfo:n=>'내 기록 사용 중 ('+n+'건, 이 기기 브라우저에만 저장)',showSample:'샘플 데이터 다시 보기',
+ sampleInfo:'지금 보이는 기록은 체험용 가짜 데이터(약 90일)입니다.',useOwn:'샘플 지우고 내 기록 사용하기',ownInfo:(n,w)=>'내 기록 사용 중 ('+n+'건, '+(w==='cloud'?'내 계정에 백업됨':w==='device'?'이 기기에 저장됨':'이 기기 브라우저에만 저장')+')',showSample:'샘플 데이터 다시 보기',
  cfOwn:'샘플 데이터를 지우고 내 기록으로 시작할까요?',guard:'샘플 데이터 모드입니다. 계정 탭(또는 상단 배지)의 "샘플 지우고 내 기록 사용하기"를 눌러 주세요.',
  eSleep:'잠든 시각을 입력하세요',eRange:'깬 시각은 잠든 시각 이후, 24시간 이내여야 합니다',eOpen:'이미 수면 중인 기록이 있습니다',cfDel:'이 기록을 삭제할까요?',
  noChart:'차트 라이브러리를 불러오지 못했습니다.',sleepH:'수면 시간(h)',hours:'시간',clock:'시각',trendW:'주간 추이 (12주)',trendM:'월간 추이 (6개월)',avgDur:'평균 수면 시간',avgBed:'평균 취침 시각',avgWake:'평균 기상 시각',
@@ -31,7 +31,7 @@ const I={ko:{
  pred7:'Next 7 days forecast',predictBtn:'Predict',predNote:'Method: 14-day weighted average + day-of-week adjustment; range = ±1 SD of last 28 days (estimate).',
  navHome:'Log',navCharts:'Charts',navPredict:'Predict',navReport:'Report',navAccount:'Account',fSleep:'Fell asleep',fWake:'Awake time (blank = still asleep)',del:'Delete',cancel:'Cancel',save:'Save',
  editRec:'Edit record',addRec:'Add record',edit:'Edit',night:'night',sleeping:'sleeping',noRec:'No records yet',sleepingSince:(a,b)=>'😴 Asleep since '+a+' · '+b,
- sampleInfo:'The records shown are fake demo data (~90 days).',useOwn:'Clear sample & use my records',ownInfo:n=>'Using my records ('+n+', stored only in this browser)',showSample:'Show sample data again',
+ sampleInfo:'The records shown are fake demo data (~90 days).',useOwn:'Clear sample & use my records',ownInfo:(n,w)=>'Using my records ('+n+', '+(w==='cloud'?'backed up to your account':w==='device'?'saved on this device':'stored only in this browser')+')',showSample:'Show sample data again',
  cfOwn:'Clear sample data and start with your own records?',guard:'Sample mode is on. Tap "Clear sample & use my records" in the Account tab (or the badge) first.',
  eSleep:'Enter the time you fell asleep',eRange:'Wake time must be after sleep time and within 24h',eOpen:'There is already an open sleep record',cfDel:'Delete this record?',
  noChart:'Failed to load chart library.',sleepH:'Sleep (h)',hours:'hours',clock:'time',trendW:'Weekly trend (12 wks)',trendM:'Monthly trend (6 mo)',avgDur:'Avg sleep',avgBed:'Avg bedtime',avgWake:'Avg wake time',
@@ -97,11 +97,7 @@ function render(){
  $('#btnFold').textContent=folded?t('unfold'):t('fold');$('#list').classList.toggle('hide',folded);
  $('#list').innerHTML=all.slice(0,10).map(r=>{const s=new Date(r.sleep),w=r.wake&&new Date(r.wake);
   return '<li><span><span class="d">'+md(new Date(s-12*36e5))+' '+t('night')+'</span> '+hm(s)+' → '+(w?hm(w)+' <span class="note">'+fmtH((w-s)/36e5)+'</span>':t('sleeping'))+'</span><button class="small" data-id="'+r.id+'">'+t('edit')+'</button></li>'}).join('')||'<li class="note">'+t('noRec')+'</li>';
- $('#sampleBox').innerHTML=sample?'<p>⚙️ '+t('sampleInfo')+'</p><button id="btnOwn" class="pbtn">'+t('useOwn')+'</button>'
-  :'<p class="subt">'+t('ownInfo',own.length)+'</p><button id="btnSample" class="pbtn ghost">'+t('showSample')+'</button>';
- const bo=$('#btnOwn');if(bo)bo.onclick=()=>{if(confirm(t('cfOwn'))){sample=false;localStorage.setItem(MODE,'off');render();}};
- const bs=$('#btnSample');if(bs)bs.onclick=()=>{sample=true;localStorage.setItem(MODE,'on');render();};
- bkRender();if(typeof acctRender==='function')acctRender();document.querySelectorAll('#list button').forEach(b=>b.onclick=()=>openDlg(b.dataset.id));
+ sampleRender(); bkRender();if(typeof acctRender==='function')acctRender();document.querySelectorAll('#list button').forEach(b=>b.onclick=()=>openDlg(b.dataset.id));
  if($('#tab-charts').classList.contains('active'))drawCharts();
  if($('#tab-report').classList.contains('active'))report();
 }
@@ -318,6 +314,14 @@ function miniRender(){document.querySelectorAll('.mini').forEach(m=>{const k=m.d
  p.classList.toggle('hide',!o);if(o)p.textContent=miniText(k);});}
 miniRender();
 
+// where the user's own records live, from sync state: 'cloud' (signed in + synced), 'device' (signed in but error/offline), 'local' (signed out)
+function where(){try{const st=window.MSYNC&&window.MSYNC.status?window.MSYNC.status():null;if(!st)return'local';if(st.state==='err')return'device';if(!st.user)return'local';return st.state==='ok'||(st.state==='busy'&&st.synced)?'cloud':'device';}catch(_){return'local'}}
+function sampleRender(){
+ $('#sampleBox').innerHTML=sample?'<p>⚙️ '+t('sampleInfo')+'</p><button id="btnOwn" class="pbtn">'+t('useOwn')+'</button>'
+  :'<p class="subt">'+t('ownInfo',own.length,where())+'</p><button id="btnSample" class="pbtn ghost">'+t('showSample')+'</button>';
+ const bo=$('#btnOwn');if(bo)bo.onclick=()=>{if(confirm(t('cfOwn'))){sample=false;localStorage.setItem(MODE,'off');render();}};
+ const bs=$('#btnSample');if(bs)bs.onclick=()=>{sample=true;localStorage.setItem(MODE,'on');render();};
+}
 // account tab static parts (section titles, feedback row, privacy notice)
 function acctRender(){const ko=KO();$('#secAcct').textContent=L('내 계정','My account');$('#secSync').textContent=L('기기 동기화','Device sync');$('#secData').textContent=L('데이터','Data');
  const fb=$('#fbRow');fb.href=FEEDBACK_URL;
@@ -348,5 +352,5 @@ $('#fileIn').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(s
  if(sample){sample=false;localStorage.setItem(MODE,'off');}save();refresh();alert(L(n+'건을 새로 불러왔어요.',n+' new records imported.'));}catch(_){alert(L('My Sleep 백업 파일(JSON)이나 CSV 파일이 아니에요.','Not a My Sleep JSON or CSV file.'))}});e.target.value='';};
 setInterval(()=>{if($('#tab-home').classList.contains('active')&&!$('#dlg').open)render()},60000);
 // sync bridge for js/sync.js (local store stays mysleep.records.v1)
-window.MSB={get:()=>own.slice(),set:arr=>{own=arr;if(arr.length&&sample){sample=false;localStorage.setItem(MODE,'off');}localStorage.setItem(KEY,JSON.stringify(own));refresh();},lang:()=>lang,sample:()=>sample,goHome:()=>document.querySelector('nav button[data-t=home]').click(),goAccount:()=>document.querySelector('nav button[data-t=account]').click()};
+window.MSB={get:()=>own.slice(),set:arr=>{own=arr;if(arr.length&&sample){sample=false;localStorage.setItem(MODE,'off');}localStorage.setItem(KEY,JSON.stringify(own));refresh();},lang:()=>lang,sample:()=>sample,sampleRender:()=>sampleRender(),goHome:()=>document.querySelector('nav button[data-t=home]').click(),goAccount:()=>document.querySelector('nav button[data-t=account]').click()};
 })();

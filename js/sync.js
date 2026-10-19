@@ -83,6 +83,7 @@ function device(){const u=navigator.userAgent;const dv=/iPad/.test(u)||(navigato
  return (dv+' '+(standalone?L('홈 화면 앱','Home Screen app'):br)).trim()||L('이 브라우저','This browser');}
 const shape=s=>'<i class="sd" aria-hidden="true"></i>';
 function render(){if(!window.MSB)return;const st=state(),u=mock&&mock.user||user,last=localStorage.getItem(LAST),wait=pending||signing;
+ try{if(window.MSB.sampleRender)window.MSB.sampleRender();}catch(_){}
  const dot=$('#syncDot');if(dot){dot.className='spill st-'+st;dot.innerHTML=shape(st)+'<span class="stx">'+STX(st)+'</span>';dot.setAttribute('aria-label',L('동기화 상태: ','Sync status: ')+STX(st));dot.onclick=()=>window.MSB.goAccount();}
  const ab=$('#acctBox');if(ab){
   if(u){const nm=u.displayName||(u.email||'').split('@')[0]||'?';
@@ -110,7 +111,8 @@ function render(){if(!window.MSB)return;const st=state(),u=mock&&mock.user||user
  const o=document.querySelector('.sOut');if(o)o.onclick=async()=>{if(!confirm(L('로그아웃할까요?\n로그아웃해도 이 기기의 기록은 지워지지 않아요.','Sign out?\nSigning out does not delete records on this device.')))return;
   if(mock){mock=false;render();return}if(unsub)unsub();unsub=null;known.clear();lastLocal=null;localStorage.setItem(SKIP,'1');try{await F.auth.signOut(auth);}catch(e){err=e.code||String(e);render();}};}
 
-window.MSYNC={changed,render};
+// signed-in user = the real Firebase user from onAuthStateChanged (mock only via the localhost-only test hook below)
+window.MSYNC={changed,render,status:()=>({state:state(),user:!!(mock&&mock.user||user),synced:!!localStorage.getItem(LAST)})};
 // Screenshot/test hook: only on localhost, never on the real site.
 if(/^(localhost|127\.0\.0\.1)$/.test(location.hostname))window.MSYNC._mock=m=>{mock=m||false;ready=true;render();};
 addEventListener('online',()=>{online=true;render();});addEventListener('offline',()=>{online=false;render();});
