@@ -1,15 +1,19 @@
 (function(){
 const KEY='mysleep.records.v1', MODE='mysleep.sample.v1', LANG='mysleep.lang', THEME='mysleep.theme';
+// Feedback form (opens in a new tab from the Account tab). Replace this one constant to change the form.
+const FEEDBACK_URL='https://forms.gle/1e6APyTsEorW4AQL7';
+// Anonymous event counter (GoatCounter, see index.html). Never throws, never sends record contents.
+const track=p=>{try{if(typeof window.mysleepCount==='function')window.mysleepCount(p);}catch(_){}};
 const $=s=>document.querySelector(s);
 let lang=localStorage.getItem(LANG)||((navigator.language||'ko').startsWith('ko')?'ko':'en');
 const I={ko:{
  sample:'샘플 데이터',recent:'최근 기록',addManual:'+ 추가',unfold:'펼치기 ▾',fold:'숨기기 ▴',daily14:'일별 수면 시간 (최근 14일)',lgLow:'7h 미만 (0h 검정)',lgHigh:'9h 초과 (16h+ 검정)',
  week:'주간',month:'월간',timeNote:'취침/기상 시각은 자정을 넘는 경우를 위해 “18시 기준 경과 시간”으로 계산 후 실제 시각으로 표시합니다.',
  pred7:'앞으로 7일 예측',predictBtn:'예측하기',predNote:'방법: 최근 14일 가중평균 + 요일 보정, 범위 = 최근 28일 ±1 표준편차 (추정치).',
- navHome:'기록',navCharts:'차트',navPredict:'예측',navReport:'리포트',fSleep:'잠든 시각',fWake:'기상 시각 (비워두면 수면 중)',del:'삭제',cancel:'취소',save:'저장',
+ navHome:'기록',navCharts:'차트',navPredict:'예측',navReport:'리포트',navAccount:'계정',fSleep:'잠든 시각',fWake:'기상 시각 (비워두면 수면 중)',del:'삭제',cancel:'취소',save:'저장',
  editRec:'기록 수정',addRec:'기록 추가',edit:'수정',night:'밤',sleeping:'수면 중',noRec:'기록이 없습니다',sleepingSince:(a,b)=>'😴 '+a+'부터 수면 중 · '+b+' 경과',
  sampleInfo:'지금 보이는 기록은 체험용 가짜 데이터(약 90일)입니다.',useOwn:'샘플 지우고 내 기록 사용하기',ownInfo:n=>'내 기록 사용 중 ('+n+'건, 이 기기 브라우저에만 저장)',showSample:'샘플 데이터 다시 보기',
- cfOwn:'샘플 데이터를 지우고 내 기록으로 시작할까요?',guard:'샘플 데이터 모드입니다. 리포트 탭 하단(또는 상단 배지)의 "샘플 지우고 내 기록 사용하기"를 눌러 주세요.',
+ cfOwn:'샘플 데이터를 지우고 내 기록으로 시작할까요?',guard:'샘플 데이터 모드입니다. 계정 탭(또는 상단 배지)의 "샘플 지우고 내 기록 사용하기"를 눌러 주세요.',
  eSleep:'잠든 시각을 입력하세요',eRange:'깬 시각은 잠든 시각 이후, 24시간 이내여야 합니다',eOpen:'이미 수면 중인 기록이 있습니다',cfDel:'이 기록을 삭제할까요?',
  noChart:'차트 라이브러리를 불러오지 못했습니다.',sleepH:'수면 시간(h)',hours:'시간',clock:'시각',trendW:'주간 추이 (12주)',trendM:'월간 추이 (6개월)',avgDur:'평균 수면 시간',avgBed:'평균 취침 시각',avgWake:'평균 기상 시각',
  mon:m=>m+'월',actual:'실제 수면',predicted:'예측 수면',bedAct:'실제 취침',bedPred:'예상 취침 창',pDay:'날짜',pDur:'예상 수면',pRange:'범위',
@@ -25,10 +29,10 @@ const I={ko:{
  sample:'Sample data',recent:'Recent records',addManual:'+ Add',unfold:'Show ▾',fold:'Hide ▴',daily14:'Daily sleep (last 14 days)',lgLow:'<7h (0h black)',lgHigh:'>9h (16h+ black)',
  week:'Week',month:'Month',timeNote:'Bed/wake times are computed as hours after 18:00 (to handle midnight) and shown as clock times.',
  pred7:'Next 7 days forecast',predictBtn:'Predict',predNote:'Method: 14-day weighted average + day-of-week adjustment; range = ±1 SD of last 28 days (estimate).',
- navHome:'Log',navCharts:'Charts',navPredict:'Predict',navReport:'Report',fSleep:'Fell asleep',fWake:'Awake time (blank = still asleep)',del:'Delete',cancel:'Cancel',save:'Save',
+ navHome:'Log',navCharts:'Charts',navPredict:'Predict',navReport:'Report',navAccount:'Account',fSleep:'Fell asleep',fWake:'Awake time (blank = still asleep)',del:'Delete',cancel:'Cancel',save:'Save',
  editRec:'Edit record',addRec:'Add record',edit:'Edit',night:'night',sleeping:'sleeping',noRec:'No records yet',sleepingSince:(a,b)=>'😴 Asleep since '+a+' · '+b,
  sampleInfo:'The records shown are fake demo data (~90 days).',useOwn:'Clear sample & use my records',ownInfo:n=>'Using my records ('+n+', stored only in this browser)',showSample:'Show sample data again',
- cfOwn:'Clear sample data and start with your own records?',guard:'Sample mode is on. Tap "Clear sample & use my records" at the bottom of the Report tab (or the badge) first.',
+ cfOwn:'Clear sample data and start with your own records?',guard:'Sample mode is on. Tap "Clear sample & use my records" in the Account tab (or the badge) first.',
  eSleep:'Enter the time you fell asleep',eRange:'Wake time must be after sleep time and within 24h',eOpen:'There is already an open sleep record',cfDel:'Delete this record?',
  noChart:'Failed to load chart library.',sleepH:'Sleep (h)',hours:'hours',clock:'time',trendW:'Weekly trend (12 wks)',trendM:'Monthly trend (6 mo)',avgDur:'Avg sleep',avgBed:'Avg bedtime',avgWake:'Avg wake time',
  mon:m=>['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1],actual:'Actual sleep',predicted:'Predicted sleep',bedAct:'Actual bedtime',bedPred:'Bedtime window',pDay:'Date',pDur:'Est. sleep',pRange:'Range',
@@ -47,7 +51,7 @@ let sample=localStorage.getItem(MODE)!=='off';
 let own=JSON.parse(localStorage.getItem(KEY)||'[]');
 let sampleRecs=null, charts={}, period='week', folded=true;
 const recs=()=>sample?(sampleRecs||(sampleRecs=genSample())):own;
-function save(){if(!sample)localStorage.setItem(KEY,JSON.stringify(own));}
+function save(){if(!sample){localStorage.setItem(KEY,JSON.stringify(own));try{if(window.MSYNC)window.MSYNC.changed(own);}catch(_){}}}
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function genSample(){let s=42;const r=()=>{s=(s*16807)%2147483647;return s/2147483647};
  const g=()=>{let u=0;for(let i=0;i<6;i++)u+=r();return u-3};const out=[];const now=new Date();
@@ -82,7 +86,7 @@ matchMedia('(prefers-color-scheme: light)').addEventListener('change',e=>{if(!lo
 function applyLang(){document.documentElement.lang=lang;$('#btnLang').textContent=lang==='ko'?'EN':'한';
  document.querySelectorAll('[data-i18n]').forEach(e=>e.textContent=t(e.dataset.i18n));}
 $('#btnLang').onclick=()=>{lang=lang==='ko'?'en':'ko';localStorage.setItem(LANG,lang);applyLang();refresh();};
-function refresh(){render();if(typeof miniRender==='function')miniRender();if(typeof accRefresh==='function')accRefresh();}
+function refresh(){render();try{if(window.MSYNC)window.MSYNC.render();}catch(_){}if(typeof miniRender==='function')miniRender();if(typeof accRefresh==='function')accRefresh();}
 // home
 function render(){
  $('#badge').classList.toggle('hide',!sample);
@@ -93,20 +97,20 @@ function render(){
  $('#btnFold').textContent=folded?t('unfold'):t('fold');$('#list').classList.toggle('hide',folded);
  $('#list').innerHTML=all.slice(0,10).map(r=>{const s=new Date(r.sleep),w=r.wake&&new Date(r.wake);
   return '<li><span><span class="d">'+md(new Date(s-12*36e5))+' '+t('night')+'</span> '+hm(s)+' → '+(w?hm(w)+' <span class="note">'+fmtH((w-s)/36e5)+'</span>':t('sleeping'))+'</span><button class="small" data-id="'+r.id+'">'+t('edit')+'</button></li>'}).join('')||'<li class="note">'+t('noRec')+'</li>';
- $('#sampleBox').innerHTML=sample?'<p>⚙️ '+t('sampleInfo')+'</p><button id="btnOwn" class="small">'+t('useOwn')+'</button>'
-  :'<p class="note">'+t('ownInfo',own.length)+'</p><button id="btnSample" class="small">'+t('showSample')+'</button>';
+ $('#sampleBox').innerHTML=sample?'<p>⚙️ '+t('sampleInfo')+'</p><button id="btnOwn" class="pbtn">'+t('useOwn')+'</button>'
+  :'<p class="subt">'+t('ownInfo',own.length)+'</p><button id="btnSample" class="pbtn ghost">'+t('showSample')+'</button>';
  const bo=$('#btnOwn');if(bo)bo.onclick=()=>{if(confirm(t('cfOwn'))){sample=false;localStorage.setItem(MODE,'off');render();}};
  const bs=$('#btnSample');if(bs)bs.onclick=()=>{sample=true;localStorage.setItem(MODE,'on');render();};
- bkRender();document.querySelectorAll('#list button').forEach(b=>b.onclick=()=>openDlg(b.dataset.id));
+ bkRender();if(typeof acctRender==='function')acctRender();document.querySelectorAll('#list button').forEach(b=>b.onclick=()=>openDlg(b.dataset.id));
  if($('#tab-charts').classList.contains('active'))drawCharts();
  if($('#tab-report').classList.contains('active'))report();
 }
 $('#btnFold').onclick=()=>{folded=!folded;render();};
-$('#badge').style.cursor='pointer';$('#badge').onclick=()=>document.querySelector('nav button[data-t=report]').click();
+$('#badge').style.cursor='pointer';$('#badge').onclick=()=>document.querySelector('nav button[data-t=account]').click();
 function guardSample(){if(sample){alert(t('guard'));return true}return false}
 function setTh(th){document.documentElement.dataset.theme=th;localStorage.setItem(THEME,th);applyTheme();}
 $('#btnToggle').onclick=()=>{if(guardSample())return;const o=own.find(r=>!r.wake);
- if(o){o.wake=new Date().toISOString();setTh('light');}else{own.push({id:uid(),sleep:new Date().toISOString(),wake:null});setTh('dark');}save();refresh();};
+ const ev=o?'mysleep-wake':'mysleep-sleep';if(o){o.wake=new Date().toISOString();setTh('light');}else{own.push({id:uid(),sleep:new Date().toISOString(),wake:null});setTh('dark');}save();refresh();track(ev);};
 setInterval(()=>{if(own.some(r=>!r.wake)&&!sample)render()},60000);
 $('#btnAdd').onclick=()=>{if(guardSample())return;openDlg(null)};
 let editId=null;
@@ -122,7 +126,7 @@ $('#dlgDel').onclick=()=>{if(confirm(t('cfDel'))){own=own.filter(r=>r.id!==editI
 // tabs
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));
  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.id==='tab-'+b.dataset.t));
- if(b.dataset.t==='charts')drawCharts();if(b.dataset.t==='report')report();window.scrollTo(0,0);});
+ if(b.dataset.t==='charts')drawCharts();if(b.dataset.t==='report'){report();track('mysleep-report');}if(b.dataset.t==='account')acctRender();window.scrollTo(0,0);});
 document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{period=b.dataset.p;document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===b));drawCharts();});
 // charts
 const hasChart=()=>typeof Chart!=='undefined';
@@ -133,10 +137,12 @@ function barColor(v){if(v==null)return'#888';
  if(v>=7&&v<=9)return'#4fb3ff';
  if(v<7){return v>=3.5?lerp('#e02020','#ff9a7a',(v-3.5)/3.5):lerp('#000000','#e02020',Math.max(0,v)/3.5)}
  return v<=12.5?lerp('#3d8bff','#0a1a8f',(v-9)/3.5):lerp('#0a1a8f','#000000',Math.min(1,(v-12.5)/3.5));}
+// 14 calendar days (oldest→today) keyed by wake date, summed per day — the exact window the daily chart uses.
+function dayVals(){const byDay={};nights().forEach(n=>{(byDay[n.key]=byDay[n.key]||[]).push(n)});const days=[];for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d)}
+ return{days,vals:days.map(d=>{const a=byDay[dkey(d)];return a?+a.reduce((x,n)=>x+n.dur,0).toFixed(2):null})};}
+function dayWin(){const v=dayVals().vals,f=x=>x.filter(y=>y!=null);return{b:f(v.slice(0,7)),a:f(v.slice(7))};}
 function drawCharts(){if(!hasChart()){$('#tab-charts .card').insertAdjacentHTML('afterbegin','<p class="err">'+t('noChart')+'</p>');return}
- const N=nights();const byDay={};N.forEach(n=>{(byDay[n.key]=byDay[n.key]||[]).push(n)});
- const days=[];for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d)}
- const vals=days.map(d=>{const a=byDay[dkey(d)];return a?+a.reduce((x,n)=>x+n.dur,0).toFixed(2):null});
+ const N=nights();const {days,vals}=dayVals();
  mk('cDaily',{type:'bar',data:{labels:days.map(d=>(d.getMonth()+1)+'/'+d.getDate()),datasets:[{label:t('sleepH'),data:vals,
   backgroundColor:vals.map(barColor),borderColor:css('--line'),borderWidth:1,borderRadius:4}]},
   options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtH(c.raw)}}},scales:{y:{min:0,suggestedMax:10,title:{display:true,text:t('hours')}}}}});
@@ -285,11 +291,10 @@ applyTheme();applyLang();render();fitH();
 const miniOpen=new Set();
 function miniText(k){const ko=KO(),N=nights(),MORE=ko?'기록이 더 쌓이면 보여드릴게요 🌱':"I'll show this once more records build up 🌱";
  const mins=v=>fmtM(v*60),D=DOW();
- if(k==='daily'){const now=new Date(),c1=new Date(now),c2=new Date(now);c1.setDate(now.getDate()-7);c2.setDate(now.getDate()-14);
-  const a=N.filter(n=>n.w>c1),b=N.filter(n=>n.w>c2&&n.w<=c1);if(a.length<3||b.length<3)return MORE;
-  const d=mean(a.map(n=>n.dur))-mean(b.map(n=>n.dur)),sh=a.filter(n=>n.dur<7).length,same=Math.abs(d)<1/6;
-  return ko?'최근 7일 평균은 '+fmtH(mean(a.map(n=>n.dur)))+'로, 그 전 7일보다 '+(same?'거의 비슷해요.':mins(d)+' '+(d>0?'늘었어요.':'줄었어요.'))+' 최근 7일 중 7시간 미만은 '+sh+'일이에요.'
-   :'Your last-7-day average is '+fmtH(mean(a.map(n=>n.dur)))+', '+(same?'about the same as':mins(d)+' '+(d>0?'more than':'less than'))+' the previous 7 days. '+sh+' of the last 7 nights were under 7h.';}
+ if(k==='daily'){const {a,b}=dayWin();if(a.length<3||b.length<3)return MORE;
+  const d=mean(a)-mean(b),sh=a.filter(v=>v<7).length,same=Math.abs(d)<1/6;
+  return ko?'최근 7일 평균은 '+fmtH(mean(a))+'로, 그 전 7일보다 '+(same?'거의 비슷해요.':mins(d)+' '+(d>0?'늘었어요.':'줄었어요.'))+' 최근 7일 중 7시간 미만은 '+sh+'일이에요.'
+   :'Your last-7-day average is '+fmtH(mean(a))+', '+(same?'about the same as':mins(d)+' '+(d>0?'more than':'less than'))+' the previous 7 days. '+sh+' of the last 7 nights were under 7h.';}
  const L=N.slice(-28);if(L.length<7)return MORE;
  if(k==='trend'){const wd=L.filter(n=>n.dow>=1&&n.dow<=5),we=L.filter(n=>n.dow===0||n.dow===6);if(wd.length<3||we.length<2)return MORE;
   const dd=mean(we.map(n=>n.dur))-mean(wd.map(n=>n.dur)),db=mean(we.map(n=>n.bed))-mean(wd.map(n=>n.bed));
@@ -313,13 +318,24 @@ function miniRender(){document.querySelectorAll('.mini').forEach(m=>{const k=m.d
  p.classList.toggle('hide',!o);if(o)p.textContent=miniText(k);});}
 miniRender();
 
+// account tab static parts (section titles, feedback row, privacy notice)
+function acctRender(){const ko=KO();$('#secAcct').textContent=L('내 계정','My account');$('#secSync').textContent=L('기기 동기화','Device sync');$('#secData').textContent=L('데이터','Data');
+ const fb=$('#fbRow');fb.href=FEEDBACK_URL;
+ fb.innerHTML='<span class="fb-icw"><svg class="fb-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.6A8 8 0 1 1 21 12z"/></svg></span><span class="fb-t"><b>'+L('의견 보내기','Send feedback')+'</b><small>'+L('불편한 점이나 아이디어를 알려 주세요','Tell us what bothers you or share an idea')+'</small></span><span class="fb-ext" role="img" aria-label="'+L('새 탭에서 열림','Opens in a new tab')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></span>';
+ fb.onclick=()=>track('mysleep-feedback');
+ const pv=$('#pv'),open=pv.open;
+ pv.innerHTML=ko?'<summary>기록은 내 기기에 먼저 저장되고, 로그인하면 내 계정에만 백업돼요. 앱 개선을 위해 방문 수와 버튼 누른 횟수만 익명으로 세고, 기록 내용은 모으지 않아요.<span class="more">자세히</span></summary><div class="full"><p>기록은 먼저 <b>이 기기 안에만</b> 저장돼요. Google로 로그인하면 같은 기록이 <b>내 계정 공간에만</b> 백업되고, 다른 사용자는 볼 수 없어요.</p><p>앱을 고치는 데 참고하려고 <b>GoatCounter</b>로 방문 수와 버튼을 누른 횟수만 익명으로 세요. GoatCounter는 쿠키나 광고 추적을 쓰지 않아요 (로그인하면 Google 로그인 정보만 저장돼요). 수면 기록 내용은 모으지 않아요.</p><p>의견은 Google 폼으로 받아 <b>앱 개선에만</b> 쓰고, 다른 곳에 공유하지 않아요.</p></div>'
+  :'<summary>Records are saved on this device first; if you sign in they are backed up only to your own account. To improve the app we anonymously count visits and button taps only, never record contents.<span class="more">Details</span></summary><div class="full"><p>Records are first saved <b>only on this device</b>. If you sign in with Google, the same records are backed up <b>only to your own account space</b>; no other user can see them.</p><p>To help fix the app, <b>GoatCounter</b> anonymously counts visits and button taps only. GoatCounter uses no cookies or ad tracking (signing in stores only your Google sign-in info). Sleep record contents are not collected.</p><p>Feedback is collected with Google Forms, used <b>only to improve the app</b>, and not shared.</p></div>';
+ pv.open=open;}
 // backup
 function L(k,e){return lang==='ko'?k:e}
 function pad2(n){return String(n).padStart(2,'0')}
 function dl(name,text,type){const b=new Blob([text],{type});const f=new File([b],name,{type});
  if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:name}).catch(()=>{});}else{const u=URL.createObjectURL(b);const x=document.createElement('a');x.href=u;x.download=name;x.click();setTimeout(()=>URL.revokeObjectURL(u),2000);}}
+
 function bkRender(){const d=new Date(),st=d.getFullYear()+pad2(d.getMonth()+1)+pad2(d.getDate());
- $('#bkBox').innerHTML='<h2>'+L('데이터 내보내기·불러오기','Export & import data')+'</h2><p class="note">'+L('내 기록을 파일로 저장해 두면, 폰을 바꾸거나 사파리 데이터를 지워도 다시 불러올 수 있어요. 불러오기는 JSON·CSV 파일 둘 다 돼요. CSV는 엑셀에서 열 수 있어요.','Save your records to a file so you can restore them after changing phones or clearing Safari data.')+'</p><div class="row"><button id="bkSave" class="small">'+L('JSON 내보내기','Export JSON')+'</button><button id="bkCsv" class="small">'+L('CSV 내보내기','Export CSV')+'</button><button id="bkLoad" class="small">'+L('불러오기','Import')+'</button></div>';
+ const row=(id,a,b)=>'<button type="button" class="it" id="'+id+'"><span>'+a+(b?' <em>'+b+'</em>':'')+'</span><b class="chev" aria-hidden="true">›</b></button>';
+ $('#bkBox').innerHTML=row('bkSave',L('파일로 백업','Back up to file'),'(JSON)')+row('bkCsv',L('엑셀용 내보내기','Export for Excel'),'(CSV)')+row('bkLoad',L('백업 파일 불러오기','Import backup file'),'');
  $('#bkSave').onclick=()=>{if(!own.length){alert(L('내보낼 내 기록이 없어요.','No records to export.'));return}dl('mysleep-backup-'+st+'.json',JSON.stringify({app:'MySleep',version:1,exportedAt:new Date().toISOString(),sleep:own},null,1),'application/json');};
  $('#bkLoad').onclick=()=>$('#fileIn').click();
  $('#bkCsv').onclick=()=>{const R=own.filter(r=>r.wake);if(!R.length){alert(L('내보낼 내 기록이 없어요.','No records to export.'));return}const f=x=>{const d=new Date(x);return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate())+' '+pad2(d.getHours())+':'+pad2(d.getMinutes())};
@@ -329,6 +345,8 @@ $('#fileIn').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(s
  arr=tx.split(/\r?\n/).map(l=>l.split(',')).map(c=>({s:P(c[0]),w:P(c[1])})).filter(o=>o.s&&o.w&&o.w>o.s).map(o=>({id:'csv'+(+o.s),sleep:o.s.toISOString(),wake:o.w.toISOString()}));if(!arr.length)throw 0;}
  if(!Array.isArray(arr))throw 0;
  if(!confirm(L(arr.length+'건을 불러와 지금 기록과 합칠까요?','Merge '+arr.length+' records into your records?')))return;const ids=new Set(own.map(r=>r.id)),sl=new Set(own.map(r=>Math.round(+new Date(r.sleep)/6e4)));let n=0;arr.forEach(r=>{if(r&&r.sleep&&!ids.has(r.id)&&!sl.has(Math.round(+new Date(r.sleep)/6e4))){own.push(r);n++}});
- if(sample){sample=false;localStorage.setItem(MODE,'off');}localStorage.setItem(KEY,JSON.stringify(own));refresh();alert(L(n+'건을 새로 불러왔어요.',n+' new records imported.'));}catch(_){alert(L('My Sleep 백업 파일(JSON)이나 CSV 파일이 아니에요.','Not a My Sleep JSON or CSV file.'))}});e.target.value='';};
+ if(sample){sample=false;localStorage.setItem(MODE,'off');}save();refresh();alert(L(n+'건을 새로 불러왔어요.',n+' new records imported.'));}catch(_){alert(L('My Sleep 백업 파일(JSON)이나 CSV 파일이 아니에요.','Not a My Sleep JSON or CSV file.'))}});e.target.value='';};
 setInterval(()=>{if($('#tab-home').classList.contains('active')&&!$('#dlg').open)render()},60000);
+// sync bridge for js/sync.js (local store stays mysleep.records.v1)
+window.MSB={get:()=>own.slice(),set:arr=>{own=arr;if(arr.length&&sample){sample=false;localStorage.setItem(MODE,'off');}localStorage.setItem(KEY,JSON.stringify(own));refresh();},lang:()=>lang,sample:()=>sample,goHome:()=>document.querySelector('nav button[data-t=home]').click(),goAccount:()=>document.querySelector('nav button[data-t=account]').click()};
 })();

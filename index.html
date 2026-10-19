@@ -7,12 +7,26 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
+<script>
+// MERGE_BACKUP: on first load after the sync merge, copy every existing mysleep.* key into one backup key BEFORE anything else runs.
+(function(){try{var B='mysleep.backupBeforeMerge';if(localStorage.getItem(B)!==null)return;var o={app:'MySleep',savedAt:new Date().toISOString(),reason:'auto backup before sync merge',data:{}};
+for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('mysleep.')===0&&k!==B)o.data[k]=localStorage.getItem(k);}localStorage.setItem(B,JSON.stringify(o));}catch(e){}})();
+</script>
+<script>
+// GoatCounter: anonymous page views + button counts only (never record contents). Loads only on the real host and when the URL has no query string (e.g. login return).
+(function(){var REAL_HOST='jonghun9982-crypto.github.io',ok=false;try{ok=location.hostname===REAL_HOST&&!location.search;}catch(e){}window.__gcEnabled=ok;
+window.mysleepCount=function(path,title){try{if(!window.__gcEnabled)return;setTimeout(function(){try{var gc=window.goatcounter;if(gc&&typeof gc.count==='function')gc.count({path:path,title:title||path,referrer:'',event:true});}catch(e){}},0);}catch(e){}};
+if(!ok)return;try{var s=document.createElement('script');s.async=true;s.src='//gc.zgo.at/count.js';s.setAttribute('data-goatcounter','https://jonghun-apps.goatcounter.com/count');s.setAttribute('data-goatcounter-settings','{"no_onload": true, "no_events": true}');
+s.onload=function(){function pv(){try{var ref='';try{ref=document.referrer?new URL(document.referrer).origin:'';}catch(e){}if(ref===location.origin)ref='';window.goatcounter.count({path:'/my-sleep/',title:'My Sleep',referrer:ref});}catch(e){}}
+function vis(){if(!('visibilityState' in document)||document.visibilityState==='visible')return pv();document.addEventListener('visibilitychange',function f(){if(document.visibilityState!=='visible')return;document.removeEventListener('visibilitychange',f);pv();});}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',vis);else vis();};s.onerror=function(){};document.head.appendChild(s);}catch(e){}})();
+</script>
 <script>(function(){var t=localStorage.getItem('mysleep.theme');if(!t)t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
 <link rel="stylesheet" href="css/style.css">
 <script src="js/chart.umd.min.js"></script>
 </head><body>
 <header><h1>My Sleep</h1><span id="badge" class="badge" data-i18n="sample"></span><span class="sp"></span>
-<button id="btnLang" class="icon" aria-label="Language">EN</button><button id="btnTheme" class="icon" aria-label="Theme">☀️</button></header>
+<button id="syncDot" class="spill st-login" aria-label="로그인"><i class="sd" aria-hidden="true"></i><span class="stx">로그인</span></button><button id="btnLang" class="icon" aria-label="Language">EN</button><button id="btnTheme" class="icon" aria-label="Theme">☀️</button></header>
 <main>
 <section id="tab-home" class="tab active">
   <button id="btnToggle" class="tog"></button>
@@ -35,9 +49,19 @@
 <section id="tab-report" class="tab"><div id="report"></div><div class="card">
   <div class="acc"><button class="accb" data-k="bed"></button><div class="accp hide"><label><span id="wkLbl"></span><input type="time" id="wkIn" value="07:00"></label><div id="bedOut"></div></div></div>
   <div class="acc"><button class="accb" data-k="debt"></button><div class="accp hide" id="debtOut"></div></div>
-<div class="mini" data-m="bed"></div></div><div class="card note" id="disc"></div><div class="card" id="bkBox"></div><div class="card" id="sampleBox"></div></section>
+<div class="mini" data-m="bed"></div></div><div class="card note" id="disc"></div></section>
+<section id="tab-account" class="tab">
+  <h3 class="sec" id="secAcct"></h3><div class="gcard" id="acctBox"></div>
+  <h3 class="sec" id="secSync"></h3><div class="gcard" id="syncBox"></div>
+  <div class="gcard" id="sampleBox"></div>
+  <h3 class="sec" id="secData"></h3><div class="gcard glist" id="bkBox"></div>
+  <a class="fb-row" id="fbRow" href="#" target="_blank" rel="noopener"></a>
+  <div id="outBox"></div>
+  <details class="privacy" id="pv"></details>
+</section>
 </main>
-<nav><button data-t="home" class="on">🏠<br><span data-i18n="navHome"></span></button><button data-t="charts">📊<br><span data-i18n="navCharts"></span></button><button data-t="predict">🔮<br><span data-i18n="navPredict"></span></button><button data-t="report"><img class="navic" src="icons/icon-192.png" alt="" aria-hidden="true"><br><span data-i18n="navReport"></span></button></nav>
+<nav><button data-t="home" class="on">🏠<br><span data-i18n="navHome"></span></button><button data-t="charts">📊<br><span data-i18n="navCharts"></span></button><button data-t="predict">🔮<br><span data-i18n="navPredict"></span></button><button data-t="report"><img class="navic" src="icons/icon-192.png" alt="" aria-hidden="true"><br><span data-i18n="navReport"></span></button><button data-t="account">👤<br><span data-i18n="navAccount"></span></button></nav>
+<div id="startScr" class="start hide" role="dialog" aria-modal="true" aria-label="My Sleep"></div>
 <dialog id="dlg"><form method="dialog" id="dlgForm"><h2 id="dlgTitle"></h2>
 <label><span data-i18n="fSleep"></span><input type="datetime-local" id="fSleep" required></label>
 <label><span data-i18n="fWake"></span><input type="datetime-local" id="fWake"></label>
@@ -46,4 +70,5 @@
 </form></dialog>
 <input type="file" id="fileIn" accept=".json,.csv,application/json,text/csv" style="display:none">
 <script src="js/app.js"></script>
+<script type="module" src="js/sync.js"></script>
 </body></html>
