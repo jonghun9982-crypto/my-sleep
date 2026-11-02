@@ -129,3 +129,28 @@ header .icon,.spill{position:relative}header .icon::before,.spill::before{conten
  .gcard,.fb-row,.spill,.privacy .full{background:var(--card);backdrop-filter:none;-webkit-backdrop-filter:none}
  .start{background:var(--bg);backdrop-filter:none;-webkit-backdrop-filter:none}}
 @media (max-width:370px){.spill .stx{display:none}.spill{padding:0 9px}}
+/* ===== Santa-hat sleep/wake character (ported from preview/santa v3) ===== */
+.tog .lbl{display:contents}
+.tog{gap:4px;overflow:hidden}
+.tog{position:relative}
+/* v3: character alone in the exact center; viewBox is symmetric around the hat+eyes so the SVG box center = character center */
+.tog .santa{display:block;flex:0 0 auto;width:min(92%,420px);height:auto;max-height:50dvh;overflow:visible}
+.tog .lbl .el{position:absolute;left:0;right:0;bottom:clamp(14px,4dvh,30px);text-align:center;font-size:16px;line-height:1.2;opacity:.45;pointer-events:none}
+/* v2: hat stays still; only the eyes change. Awake = open + blink, asleep = fold shut into curved lines + z z z */
+.santa .eyeo{transform-box:fill-box;transform-origin:50% 60%;transition:transform .45s cubic-bezier(.4,0,.2,1),opacity .3s ease .15s}
+.santa .eyes{transform-box:fill-box;transform-origin:50% 60%;animation:sblink 5.5s infinite}
+.santa .scl{fill:#fff;stroke:#3a2f3a;stroke-width:2.2}
+.santa .pup{fill:#3a2f3a}
+.santa .shut{fill:none;stroke:#3a2f3a;stroke-width:4;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;opacity:0;transition:stroke-dashoffset .45s ease .2s,opacity .2s ease .2s}
+[data-theme=dark] .santa .scl{stroke:#eef0ff;stroke-width:1.6}
+[data-theme=dark] .santa .shut{stroke:#eef0ff}
+.santa .zz{font-family:"Arial Rounded MT Bold","Nunito",ui-rounded,system-ui,sans-serif;font-weight:800;fill:#c9ccff;opacity:0;transform-box:fill-box;transform-origin:center}
+[data-theme=light] .santa .zz{fill:#8b6a43}
+.santa .z1{font-size:16px}.santa .z2{font-size:22px}.santa .z3{font-size:28px}
+.santa.on .eyeo{transform:scaleY(.08);opacity:0}
+.santa.on .eyes{animation:none}
+.santa.on .shut{stroke-dashoffset:0;opacity:1}
+.santa.on .zz{animation:szz 2.4s ease-in-out infinite}.santa.on .z1{animation-delay:.6s}.santa.on .z2{animation-delay:1.2s}.santa.on .z3{animation-delay:1.8s}
+@keyframes sblink{0%,92%,100%{transform:none}95%{transform:scaleY(.08)}}
+@keyframes szz{0%{opacity:0;transform:translate(0,8px) scale(.8)}25%,65%{opacity:1}100%{opacity:0;transform:translate(5px,-10px) scale(1.05)}}
+@media (prefers-reduced-motion:reduce){.santa .eyes,.santa.on .zz{animation:none}.santa .eyeo,.santa .shut{transition:none}.santa.on .zz{opacity:1}}

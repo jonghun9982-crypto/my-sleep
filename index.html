@@ -6,7 +6,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<!-- ASSET_VERSION 20261019b: bump the ?v= on css/js below on every release so iOS Safari / home-screen app never mixes a new index.html with cached old files -->
+<!-- ASSET_VERSION 20261103a: bump the ?v= on css/js below on every release so iOS Safari / home-screen app never mixes a new index.html with cached old files -->
 <link rel="manifest" href="manifest.webmanifest">
 <script>
 // MERGE_BACKUP: on first load after the sync merge, copy every existing mysleep.* key into one backup key BEFORE anything else runs.
@@ -23,7 +23,7 @@ function vis(){if(!('visibilityState' in document)||document.visibilityState==='
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',vis);else vis();};s.onerror=function(){};document.head.appendChild(s);}catch(e){}})();
 </script>
 <script>(function(){var t=localStorage.getItem('mysleep.theme');if(!t)t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
-<link rel="stylesheet" href="css/style.css?v=20261019b">
+<link rel="stylesheet" href="css/style.css?v=20261103a">
 <script src="js/chart.umd.min.js"></script>
 </head><body>
 <header><h1>My Sleep</h1><span id="badge" class="badge" data-i18n="sample"></span><span class="sp"></span>
@@ -70,6 +70,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <div class="row"><button type="button" id="dlgDel" class="danger" data-i18n="del"></button><span></span><button value="cancel" formnovalidate data-i18n="cancel"></button><button type="button" id="dlgSave" class="primary" data-i18n="save"></button></div>
 </form></dialog>
 <input type="file" id="fileIn" accept=".json,.csv,application/json,text/csv" style="display:none">
-<script src="js/app.js?v=20261019b"></script>
-<script type="module" src="js/sync.js?v=20261019b"></script>
+<script src="js/app.js?v=20261103a"></script>
+<script type="module" src="js/sync.js?v=20261103a"></script>
 </body></html>
