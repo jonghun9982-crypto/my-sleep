@@ -136,7 +136,7 @@ $('#btnToggle').onclick=()=>{if(guardSample())return;const o=own.find(r=>!r.wake
 setInterval(()=>{if(own.some(r=>!r.wake)&&!sample)render()},60000);
 $('#btnAdd').onclick=()=>{if(guardSample())return;openDlg(null)};
 let editId=null;
-/* PREVIEW add-record sheet (modeled on 맥박노트's "내 수면 기록 직접 추가"): pick the night with chips, bedtime/wake time with ±15 min steppers
+/* PREVIEW add-record sheet (modeled on 맥박노트's "내 수면 기록 직접 추가"): pick the night with chips, bedtime/wake time with ±30 min steppers
    (native time wheel only when a time is tapped), live duration preview, then 저장. Record format unchanged: {id, sleep, wake} as ISO UTC strings. */
 const AD={night:null,orig:null};
 const dOf=k=>{const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)};
@@ -164,8 +164,8 @@ function adSum(){const c=adCalc(),e=c?adErr(c):'';$('#dlgErr').textContent='';$(
  if(!c){$('#adlDur').textContent='-';$('#adlRange').textContent='';return}
  $('#adlDur').textContent=c.en?fmtH((c.en-c.st)/36e5):t('sleeping');
  $('#adlRange').textContent=md(c.st)+' '+hm(c.st)+' → '+(c.en?md(c.en)+' '+hm(c.en):'…');$('#adlSum').classList.toggle('warn',!!e);if(e)$('#dlgErr').textContent=e}
-document.querySelectorAll('.adl-pm').forEach(b=>{b.textContent=(+b.dataset.d>0?'+':'−')+'15'+L('분','m');b.setAttribute('aria-label',(+b.dataset.d>0?L('15분 늦게','15 min later'):L('15분 일찍','15 min earlier')));
- b.onclick=()=>{const f=$('#'+b.dataset.f);if(f.disabled)return;const m=hmM(f.value),d=+b.dataset.d;f.value=mHm(m==null?0:m%15?(d>0?Math.ceil(m/15)*15:Math.floor(m/15)*15):m+d);adSum()}});
+document.querySelectorAll('.adl-pm').forEach(b=>{b.textContent=(+b.dataset.d>0?'+':'−')+'30'+L('분','m');b.setAttribute('aria-label',(+b.dataset.d>0?L('30분 늦게','30 min later'):L('30분 일찍','30 min earlier')));
+ b.onclick=()=>{const f=$('#'+b.dataset.f);if(f.disabled)return;const m=hmM(f.value),d=+b.dataset.d;f.value=mHm(m==null?0:m%30?(d>0?Math.ceil(m/30)*30:Math.floor(m/30)*30):m+d);adSum()}});
 ['#fBed','#fWk'].forEach(s=>$(s).addEventListener('input',adSum));$('#adlStill').onchange=adSum;
 function openDlg(id){if(id&&guardSample())return;editId=id;const r=own.find(x=>x.id===id);AD.orig=r||null;
  $('#dlgTitle').textContent=r?t('editRec'):t('addRec');$('#dlgDel').style.display=r?'':'none';$('#dlgErr').textContent='';
