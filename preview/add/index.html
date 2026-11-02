@@ -9,7 +9,7 @@
 <!-- ASSET_VERSION 20261019b: bump the ?v= on css/js below on every release so iOS Safari / home-screen app never mixes a new index.html with cached old files -->
 <script>/* PREVIEW: no backup script, no GoatCounter, no cloud sync, separate storage (msadd.*) */window.__gcEnabled=false;window.mysleepCount=function(){};</script>
 <script>(function(){var t=localStorage.getItem('msadd.theme');if(!t)t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
-<link rel="stylesheet" href="css/style.css?v=add2">
+<link rel="stylesheet" href="css/style.css?v=add3">
 <script src="js/chart.umd.min.js"></script>
 </head><body>
 <header><h1>My Sleep</h1><span class="pvtag">미리보기</span><span id="badge" class="badge" data-i18n="sample"></span><span class="sp"></span>
@@ -17,7 +17,14 @@
 <main>
 <section id="tab-home" class="tab active">
   <button id="btnToggle" class="tog"></button>
-  <div class="card"><div class="row"><h2 data-i18n="recent"></h2><span class="sp"></span><button id="btnAdd" class="small" data-i18n="addManual"></button><button id="btnFold" class="small"></button></div><p id="addMsg" class="addmsg hide" aria-live="polite"><span id="addTxt"></span> <button type="button" id="addUndo" class="small"></button></p><ul id="list" class="hide"></ul></div>
+  <div class="card"><div class="row"><h2 data-i18n="recent"></h2><span class="sp"></span><button id="btnAdd" class="small" data-i18n="addManual"></button><button id="btnFold" class="small"></button></div><div id="adc" class="adc hide" role="group" aria-labelledby="adcTitle">
+<div class="adc-head"><h3 id="adcTitle"></h3><button type="button" id="adcClose" class="adc-link"></button></div>
+<label class="adc-f"><span id="adcDateL"></span><input type="date" id="fDate"></label>
+<div class="adc-two"><label class="adc-f"><span id="adcBedL"></span><input type="time" id="fBed"></label><label class="adc-f" id="adcWakeF"><span id="adcWakeL"></span><input type="time" id="fWk"></label></div>
+<label class="adc-still hide" id="adcStillRow"><input type="checkbox" id="adcStill"><span id="adcStillL"></span></label>
+<p id="dlgErr" class="err" role="alert"></p>
+<div class="adc-btns"><button type="button" id="dlgSave" class="adc-save"></button><button type="button" id="dlgDel" class="adc-del"></button></div>
+</div><p id="addMsg" class="addmsg hide" aria-live="polite"><span id="addTxt"></span> <button type="button" id="addUndo" class="small"></button></p><ul id="list" class="hide"></ul></div>
 </section>
 <section id="tab-charts" class="tab">
   <div class="card"><h2 data-i18n="daily14"></h2><div class="cw" style="height:220px"><canvas id="cDaily"></canvas></div>
@@ -49,17 +56,6 @@
 </main>
 <nav><button data-t="home" class="on">🏠<br><span data-i18n="navHome"></span></button><button data-t="charts">📊<br><span data-i18n="navCharts"></span></button><button data-t="predict">🔮<br><span data-i18n="navPredict"></span></button><button data-t="report"><img class="navic" src="icons/icon-192.png" alt="" aria-hidden="true"><br><span data-i18n="navReport"></span></button><button data-t="account">👤<br><span data-i18n="navAccount"></span></button></nav>
 <div id="startScr" class="start hide" role="dialog" aria-modal="true" aria-label="My Sleep"></div>
-<dialog id="dlg" class="adl" aria-labelledby="dlgTitle"><form method="dialog" id="dlgForm">
-<div class="adl-head"><h2 id="dlgTitle" tabindex="-1" autofocus></h2><button value="cancel" formnovalidate class="adl-x" id="dlgClose"></button></div>
-<p class="adl-l" id="adlNightL"></p>
-<div class="adl-chips" id="adlChips" role="group" aria-labelledby="adlNightL"></div>
-<div class="adl-tr"><span class="adl-tl" id="adlBedL"></span><div class="adl-st"><button type="button" class="adl-pm" data-f="fBed" data-d="-30" aria-label="-30"></button><input type="time" id="fBed" step="60" aria-labelledby="adlBedL"><button type="button" class="adl-pm plus" data-f="fBed" data-d="30" aria-label="+30"></button></div></div>
-<div class="adl-tr" id="adlWakeRow"><span class="adl-tl" id="adlWakeL"></span><div class="adl-st"><button type="button" class="adl-pm" data-f="fWk" data-d="-30" aria-label="-30"></button><input type="time" id="fWk" step="60" aria-labelledby="adlWakeL"><button type="button" class="adl-pm plus" data-f="fWk" data-d="30" aria-label="+30"></button></div></div>
-<label class="adl-still hide" id="adlStillRow"><input type="checkbox" id="adlStill"><span id="adlStillL"></span></label>
-<div class="adl-sum" id="adlSum" aria-live="polite"><b id="adlDur"></b><span id="adlRange"></span></div>
-<p id="dlgErr" class="err" role="alert"></p>
-<div class="adl-btns"><button type="button" id="dlgDel" class="danger"></button><button type="button" id="dlgSave" class="primary"></button></div>
-</form></dialog>
 <input type="file" id="fileIn" accept=".json,.csv,application/json,text/csv" style="display:none">
-<script src="js/app.js?v=add2"></script>
+<script src="js/app.js?v=add3"></script>
 </body></html>

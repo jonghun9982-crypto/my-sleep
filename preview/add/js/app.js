@@ -136,56 +136,49 @@ $('#btnToggle').onclick=()=>{if(guardSample())return;const o=own.find(r=>!r.wake
 setInterval(()=>{if(own.some(r=>!r.wake)&&!sample)render()},60000);
 $('#btnAdd').onclick=()=>{if(guardSample())return;openDlg(null)};
 let editId=null;
-/* PREVIEW add-record sheet (modeled on 맥박노트's "내 수면 기록 직접 추가"): pick the night with chips, bedtime/wake time with ±30 min steppers
-   (native time wheel only when a time is tapped), live duration preview, then 저장. Record format unchanged: {id, sleep, wake} as ISO UTC strings. */
-const AD={night:null,orig:null};
+/* PREVIEW add-record card (same structure as 맥박노트's "내 수면 기록 직접 추가"): inline card in 최근 기록 with
+   날짜 (잠든 밤) + 잠든 시간 / 깬 시간 + 저장. Nothing is focused on open, so no picker pops up until a field is tapped.
+   Record format unchanged: {id, sleep, wake} as ISO UTC strings. */
+const AD={orig:null};
 const dOf=k=>{const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)};
 const addD=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
 const nightOf=d=>{const x=new Date(d);if(x.getHours()<12)x.setDate(x.getDate()-1);return dkey(x)};   // same rule as the list label (sleep - 12h)
 const hmM=v=>{const [h,m]=(v||'').split(':').map(Number);return isNaN(h)||isNaN(m)?null:h*60+m};
-const mHm=m=>{m=((m%1440)+1440)%1440;return pad(Math.floor(m/60))+':'+pad(m%60)};
-function adCalc(){const bm=hmM($('#fBed').value),wm=hmM($('#fWk').value),still=$('#adlStill').checked;if(bm==null||!AD.night)return null;
- const n=dOf(AD.night),base=bm<720?addD(n,1):n,st=new Date(base.getFullYear(),base.getMonth(),base.getDate(),Math.floor(bm/60),bm%60);
+function adCalc(){const bm=hmM($('#fBed').value),wm=hmM($('#fWk').value),still=$('#adcStill').checked,nk=$('#fDate').value;if(bm==null||!nk)return null;
+ const n=dOf(nk),base=bm<720?addD(n,1):n,st=new Date(base.getFullYear(),base.getMonth(),base.getDate(),Math.floor(bm/60),bm%60);
  if(still)return {st,en:null};if(wm==null)return null;
  let en=new Date(st.getFullYear(),st.getMonth(),st.getDate(),Math.floor(wm/60),wm%60);if(en<st)en=new Date(st.getFullYear(),st.getMonth(),st.getDate()+1,Math.floor(wm/60),wm%60);return {st,en}}
-function adErr(c){if(!c)return L('날짜와 시간을 모두 넣어 주세요.','Please pick a night and both times.');const now=Date.now();
+function adErr(c){if(!c)return L('날짜와 시간을 모두 넣어 주세요.','Please fill in the date and both times.');const now=Date.now();
  if(c.en&&+c.en===+c.st)return L('잠든 시간과 깬 시간이 같아요. 다시 확인해 주세요.','Sleep and wake times are the same. Please check again.');
- if(+c.st>now+6e4)return L('잠든 시간이 아직 오지 않았어요. 날짜를 확인해 주세요.','That bedtime hasn\u2019t happened yet. Please check the night.');
- if(c.en&&+c.en>now+6e4)return L('깬 시간이 아직 오지 않았어요. 날짜를 확인해 주세요.','That wake time hasn\u2019t happened yet. Please check the night.');
+ if(+c.st>now+6e4)return L('잠든 시간이 아직 오지 않았어요. 날짜를 확인해 주세요.','That bedtime hasn\u2019t happened yet. Please check the date.');
+ if(c.en&&+c.en>now+6e4)return L('깬 시간이 아직 오지 않았어요. 날짜를 확인해 주세요.','That wake time hasn\u2019t happened yet. Please check the date.');
  const e=c.en?+c.en:now;if(own.some(r=>r.id!==editId&&+new Date(r.sleep)<e&&(r.wake?+new Date(r.wake):now)>+c.st))return L('이미 있는 수면 기록과 시간이 겹쳐요.','This overlaps an existing sleep record.');
  if(!c.en&&own.some(r=>!r.wake&&r.id!==editId))return t('eOpen');return ''}
-function adChips(){const today=new Date(),y=addD(today,-1),y2=addD(today,-2),ks=[dkey(y),dkey(y2)],lab=[L('어젯밤','Last night'),L('그저께 밤','Night before')];
- const other=AD.night&&!ks.includes(AD.night);
- $('#adlChips').innerHTML=ks.map((k,i)=>'<button type="button" class="adl-c'+(AD.night===k?' on':'')+'" data-k="'+k+'" aria-pressed="'+(AD.night===k)+'"><b>'+lab[i]+'</b><small>'+md(dOf(k))+'</small></button>').join('')
-  +'<label class="adl-c dch'+(other?' on':'')+'"><b>'+(other?md(dOf(AD.night)):L('다른 날','Other day'))+'</b><small>'+(other?L('밤','night'):L('달력에서','pick date'))+'</small><input type="date" id="adlDate" max="'+dkey(today)+'" value="'+(AD.night||'')+'" aria-label="'+L('다른 날 고르기','Pick another night')+'"></label>';
- $('#adlChips').querySelectorAll('button').forEach(b=>b.onclick=()=>{AD.night=b.dataset.k;adChips();adSum()});
- const di=$('#adlDate');di.onchange=()=>{if(di.value){AD.night=di.value;adChips();adSum()}}}
-function adSum(){const c=adCalc(),e=c?adErr(c):'';$('#dlgErr').textContent='';$('#adlWakeRow').classList.toggle('dis',$('#adlStill').checked);$('#fWk').disabled=$('#adlStill').checked;
- if(!c){$('#adlDur').textContent='-';$('#adlRange').textContent='';return}
- $('#adlDur').textContent=c.en?fmtH((c.en-c.st)/36e5):t('sleeping');
- $('#adlRange').textContent=md(c.st)+' '+hm(c.st)+' → '+(c.en?md(c.en)+' '+hm(c.en):'…');$('#adlSum').classList.toggle('warn',!!e);if(e)$('#dlgErr').textContent=e}
-document.querySelectorAll('.adl-pm').forEach(b=>{b.textContent=(+b.dataset.d>0?'+':'−')+'30'+L('분','m');b.setAttribute('aria-label',(+b.dataset.d>0?L('30분 늦게','30 min later'):L('30분 일찍','30 min earlier')));
- b.onclick=()=>{const f=$('#'+b.dataset.f);if(f.disabled)return;const m=hmM(f.value),d=+b.dataset.d;f.value=mHm(m==null?0:m%30?(d>0?Math.ceil(m/30)*30:Math.floor(m/30)*30):m+d);adSum()}});
-['#fBed','#fWk'].forEach(s=>$(s).addEventListener('input',adSum));$('#adlStill').onchange=adSum;
+['#fDate','#fBed','#fWk'].forEach(s=>$(s).addEventListener('input',()=>{$('#dlgErr').textContent=''}));
+$('#adcStill').onchange=()=>{$('#fWk').disabled=$('#adcStill').checked;$('#adcWakeF').classList.toggle('dis',$('#adcStill').checked);$('#dlgErr').textContent=''};
+function closeDlg(){$('#adc').classList.add('hide');editId=null;AD.orig=null}
 function openDlg(id){if(id&&guardSample())return;editId=id;const r=own.find(x=>x.id===id);AD.orig=r||null;
- $('#dlgTitle').textContent=r?t('editRec'):t('addRec');$('#dlgDel').style.display=r?'':'none';$('#dlgErr').textContent='';
- $('#dlgClose').textContent=t('cancel');$('#dlgDel').textContent=t('del');$('#dlgSave').textContent=t('save');
- $('#adlNightL').textContent=L('어느 날 밤이었나요?','Which night?');$('#adlBedL').textContent=L('잠든 시간','Fell asleep');$('#adlWakeL').textContent=L('깬 시간','Woke up');$('#adlStillL').textContent=L('아직 자는 중 (기상 버튼으로 끝내요)','Still asleep (end it with the wake button)');
- $('#adlStillRow').classList.toggle('hide',!(r&&!r.wake));$('#adlStill').checked=!!(r&&!r.wake);
- if(r){const s=new Date(r.sleep);AD.night=nightOf(s);$('#fBed').value=hm(s);$('#fWk').value=r.wake?hm(new Date(r.wake)):hm(new Date());}
- else{const now=new Date(),t7=new Date(now.getFullYear(),now.getMonth(),now.getDate(),7,0);AD.night=dkey(addD(now,now>=t7?-1:-2));$('#fBed').value='23:00';$('#fWk').value='07:00';}
- adChips();adSum();$('#dlg').showModal();try{$('#dlgTitle').focus({preventScroll:true})}catch(_){}}
+ $('#adcTitle').textContent=r?L('수면 기록 고치기','Edit sleep record'):L('내 수면 기록 직접 추가','Add my sleep record');
+ $('#adcClose').textContent=L('닫기','Close');$('#dlgDel').textContent=t('del');$('#dlgSave').textContent=t('save');$('#dlgDel').classList.toggle('hide',!r);$('#dlgErr').textContent='';
+ $('#adcDateL').textContent=L('날짜 (잠든 밤)','Date (night of)');$('#adcBedL').textContent=L('잠든 시간','Fell asleep');$('#adcWakeL').textContent=L('깬 시간','Woke up');$('#adcStillL').textContent=L('아직 자는 중 (기상 버튼으로 끝내요)','Still asleep (end it with the wake button)');
+ $('#adcStillRow').classList.toggle('hide',!(r&&!r.wake));$('#adcStill').checked=!!(r&&!r.wake);
+ const now=new Date();$('#fDate').max=dkey(now);
+ if(r){const s=new Date(r.sleep);$('#fDate').value=nightOf(s);$('#fBed').value=hm(s);$('#fWk').value=r.wake?hm(new Date(r.wake)):hm(now);}
+ else{const t7=new Date(now.getFullYear(),now.getMonth(),now.getDate(),7,0);$('#fDate').value=dkey(addD(now,now>=t7?-1:-2));$('#fBed').value='23:00';$('#fWk').value='07:00';}
+ $('#adcStill').onchange();$('#adc').classList.remove('hide');
+ if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();   // never leave focus on a field (no picker on open)
+ try{$('#adc').scrollIntoView({block:'nearest',behavior:'smooth'})}catch(_){}}
+$('#adcClose').onclick=closeDlg;
 let lastAdd=null,addT=null;
 function addMsg(txt,undo){$('#addTxt').textContent=txt;$('#addUndo').textContent=L('되돌리기','Undo');$('#addUndo').classList.toggle('hide',!undo);$('#addMsg').classList.toggle('hide',!txt);clearTimeout(addT);if(txt)addT=setTimeout(()=>addMsg(''),8000)}
 $('#addUndo').onclick=()=>{if(lastAdd){own=own.filter(r=>r.id!==lastAdd);lastAdd=null;save();render();addMsg(L('기록을 되돌렸어요.','Record removed.'))}};
 $('#dlgSave').onclick=()=>{const c=adCalc(),e=adErr(c);if(e){$('#dlgErr').textContent=e;return}
- const o=AD.orig,sameMin=(iso,d)=>iso&&Math.floor(+new Date(iso)/6e4)===Math.floor(+d/6e4);   // untouched times keep their original value
+ const o=AD.orig,wasEdit=!!editId,sameMin=(iso,d)=>iso&&Math.floor(+new Date(iso)/6e4)===Math.floor(+d/6e4);   // untouched times keep their original value
  const rec={id:editId||uid(),sleep:o&&sameMin(o.sleep,c.st)?o.sleep:c.st.toISOString(),wake:c.en?(o&&sameMin(o.wake,c.en)?o.wake:c.en.toISOString()):null};
- if(editId)own[own.findIndex(r=>r.id===editId)]=rec;else{own.push(rec);lastAdd=rec.id;}
- save();$('#dlg').close();folded=false;render();
- addMsg(editId?L('기록을 고쳤어요.','Record updated.'):(c.en?L(fmtH((c.en-c.st)/36e5)+' 기록했어요','Saved '+fmtH((c.en-c.st)/36e5)):''),!editId);};
-$('#dlgDel').onclick=()=>{if(confirm(t('cfDel'))){own=own.filter(r=>r.id!==editId);save();$('#dlg').close();render();}};
-$('#dlg').addEventListener('click',e=>{if(e.target.id==='dlg')$('#dlg').close()});
+ if(wasEdit)own[own.findIndex(r=>r.id===editId)]=rec;else{own.push(rec);lastAdd=rec.id;}
+ save();closeDlg();folded=false;render();
+ addMsg(wasEdit?L('기록을 고쳤어요.','Record updated.'):(c.en?L(fmtH((c.en-c.st)/36e5)+' 기록했어요','Saved '+fmtH((c.en-c.st)/36e5)):''),!wasEdit);};
+$('#dlgDel').onclick=()=>{if(confirm(t('cfDel'))){own=own.filter(r=>r.id!==editId);save();closeDlg();render();}};
 // tabs
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));
  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.id==='tab-'+b.dataset.t));
@@ -417,7 +410,7 @@ $('#fileIn').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(s
  if(!Array.isArray(arr))throw 0;
  if(!confirm(L(arr.length+'건을 불러와 지금 기록과 합칠까요?','Merge '+arr.length+' records into your records?')))return;const ids=new Set(own.map(r=>r.id)),sl=new Set(own.map(r=>Math.round(+new Date(r.sleep)/6e4)));let n=0;arr.forEach(r=>{if(r&&r.sleep&&!ids.has(r.id)&&!sl.has(Math.round(+new Date(r.sleep)/6e4))){own.push(r);n++}});
  if(sample){sample=false;localStorage.setItem(MODE,'off');}save();refresh();alert(L(n+'건을 새로 불러왔어요.',n+' new records imported.'));}catch(_){alert(L('My Sleep 백업 파일(JSON)이나 CSV 파일이 아니에요.','Not a My Sleep JSON or CSV file.'))}});e.target.value='';};
-setInterval(()=>{if($('#tab-home').classList.contains('active')&&!$('#dlg').open)render()},60000);
+setInterval(()=>{if($('#tab-home').classList.contains('active')&&$('#adc').classList.contains('hide'))render()},60000);
 // sync bridge for js/sync.js (local store stays mysleep.records.v1)
 window.MSB={get:()=>own.slice(),set:arr=>{own=arr;if(arr.length&&sample){sample=false;localStorage.setItem(MODE,'off');}localStorage.setItem(KEY,JSON.stringify(own));refresh();},lang:()=>lang,sample:()=>sample,sampleRender:()=>sampleRender(),goHome:()=>document.querySelector('nav button[data-t=home]').click(),goAccount:()=>document.querySelector('nav button[data-t=account]').click()};
 })();
