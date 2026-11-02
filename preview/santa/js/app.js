@@ -88,31 +88,31 @@ function applyLang(){document.documentElement.lang=lang;$('#btnLang').textConten
  document.querySelectorAll('[data-i18n]').forEach(e=>e.textContent=t(e.dataset.i18n));}
 $('#btnLang').onclick=()=>{lang=lang==='ko'?'en':'ko';localStorage.setItem(LANG,lang);applyLang();refresh();};
 function refresh(){render();try{if(window.MSYNC)window.MSYNC.render();}catch(_){}if(typeof miniRender==='function')miniRender();if(typeof accRefresh==='function')accRefresh();}
-// Santa-hat character (hat = app icon's hat). Awake: hat up, eyes open + blink. Asleep (.on): hat slides down over the eyes, z z z float.
-const SANTA=on=>'<svg class="santa'+(on?' on':'')+'" viewBox="-4 0 210 170" role="img" aria-hidden="false">'
+// Santa-hat character v2 (hat = app icon's hat): no face, just the hat + a pair of eyes under it. Hat stays still.
+// Awake: eyes open + occasional blink. Asleep (.on): eyes fold shut into curved closed-eye lines, z z z float up.
+const SANTA=on=>'<svg class="santa'+(on?' on':'')+'" viewBox="22 4 186 134" role="img" aria-hidden="false">'
  +'<defs><linearGradient id="shR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ef2a33"/><stop offset="1" stop-color="#c10b17"/></linearGradient></defs>'
- +'<g class="face">'
- +'<circle cx="92" cy="104" r="50" fill="#ffe3c8"/>'
- +'<ellipse cx="62" cy="122" rx="9" ry="6" fill="#ff9fb4" opacity=".75"/><ellipse cx="122" cy="122" rx="9" ry="6" fill="#ff9fb4" opacity=".75"/>'
- +'<g class="eyes"><circle cx="72" cy="104" r="7.5" fill="#3a2f3a"/><circle cx="112" cy="104" r="7.5" fill="#3a2f3a"/><circle cx="74.8" cy="101.2" r="2.6" fill="#fff"/><circle cx="114.8" cy="101.2" r="2.6" fill="#fff"/></g>'
- +'<path class="shut" d="M63 114 Q72 121 81 114 M103 114 Q112 121 121 114" fill="none" stroke="#3a2f3a" stroke-width="3" stroke-linecap="round"/>'
- +'<path class="mo smile" d="M84 128 Q92 136 100 128" fill="none" stroke="#c9727f" stroke-width="3" stroke-linecap="round"/>'
- +'<ellipse class="mo snore" cx="92" cy="131" rx="3.6" ry="4.2" fill="#c9727f"/>'
  +'<g class="hat">'
  +'<path d="M50 70 C50 34 72 12 104 12 C132 12 150 28 160 52 C150 40 138 34 128 38 C136 50 138 60 136 70 Z" fill="url(#shR)"/>'
  +'<path d="M62 66 C74 58 104 56 134 64 L136 70 L52 70 Z" fill="#a8070f" opacity=".45"/>'
  +'<circle cx="162" cy="58" r="13" fill="#fff"/><circle cx="158" cy="54" r="5" fill="#fff" opacity=".9"/><circle cx="165" cy="62" r="10" fill="#e9edf8" opacity=".5"/>'
  +'<path d="M40 74 q4 -8 11 -6 q5 -7 12 -4 q6 -6 13 -2 q7 -5 14 -1 q7 -5 14 -1 q7 -4 13 2 q7 -3 12 4 q7 0 9 7 q4 5 1 11 q-1 7 -8 8 q-5 6 -12 3 q-7 5 -14 1 q-7 5 -14 1 q-7 5 -14 1 q-7 4 -13 -1 q-7 3 -12 -3 q-7 1 -10 -5 q-5 -6 -2 -11 Z" fill="#fff"/>'
  +'<path d="M44 86 q6 4 13 2 q6 5 13 1 q7 5 14 1 q7 5 14 1 q7 4 13 -1 q7 4 12 -2 q6 1 9 -4" fill="none" stroke="#dfe4f2" stroke-width="3" stroke-linecap="round"/>'
+ +'</g>'
+ +'<g class="eyeo"><g class="eyes">'
+ +'<ellipse class="scl" cx="78" cy="113" rx="10.5" ry="12.5"/><ellipse class="scl" cx="114" cy="113" rx="10.5" ry="12.5"/>'
+ +'<circle class="pup" cx="79.5" cy="115" r="6.6"/><circle class="pup" cx="115.5" cy="115" r="6.6"/>'
+ +'<circle cx="82" cy="112.3" r="2.3" fill="#fff"/><circle cx="118" cy="112.3" r="2.3" fill="#fff"/>'
  +'</g></g>'
- +'<text class="zz z1" x="166" y="114">z</text><text class="zz z2" x="176" y="98">z</text><text class="zz z3" x="184" y="76">z</text>'
+ +'<path class="shut" pathLength="1" d="M67.5 113 Q78 122 88.5 113 M103.5 113 Q114 122 124.5 113"/>'
+ +'<text class="zz z1" x="150" y="128">z</text><text class="zz z2" x="163" y="111">z</text><text class="zz z3" x="180" y="94">z</text>'
  +'</svg>';
 // home
 function render(){
  $('#badge').classList.toggle('hide',!sample);
  const all=recs().slice().sort((a,b)=>new Date(b.sleep)-new Date(a.sleep));const open=all.find(r=>!r.wake);
  const tb=$('#btnToggle'),KOx=lang==='ko';tb.classList.toggle('zz',!!open);
- // Santa character: built once and kept, so switching the .on class animates the hat instead of re-creating it
+ // Santa character: built once and kept, so switching the .on class animates the eyes instead of re-creating it
  let ic=tb.querySelector('.santa');if(!ic){tb.innerHTML=SANTA(!!open)+'<span class="lbl"></span>';ic=tb.querySelector('.santa');}
  ic.classList.toggle('on',!!open);ic.setAttribute('aria-label',open?(KOx?'자는 중':'Asleep'):(KOx?'깨어 있음':'Awake'));
  tb.querySelector('.lbl').innerHTML=open?'<span class="w">'+(KOx?'기상':'Awake')+'</span><span class="el">'+fmtH((Date.now()-new Date(open.sleep))/36e5)+'</span>':'<span class="w">'+(KOx?'수면':'Sleep')+'</span>';
