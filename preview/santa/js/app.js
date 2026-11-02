@@ -90,7 +90,7 @@ $('#btnLang').onclick=()=>{lang=lang==='ko'?'en':'ko';localStorage.setItem(LANG,
 function refresh(){render();try{if(window.MSYNC)window.MSYNC.render();}catch(_){}if(typeof miniRender==='function')miniRender();if(typeof accRefresh==='function')accRefresh();}
 // Santa-hat character v2 (hat = app icon's hat): no face, just the hat + a pair of eyes under it. Hat stays still.
 // Awake: eyes open + occasional blink. Asleep (.on): eyes fold shut into curved closed-eye lines, z z z float up.
-const SANTA=on=>'<svg class="santa'+(on?' on':'')+'" viewBox="22 4 186 134" role="img" aria-hidden="false">'
+const SANTA=on=>'<svg class="santa'+(on?' on':'')+'" viewBox="14 -4 186 146" aria-hidden="true" focusable="false">'
  +'<defs><linearGradient id="shR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ef2a33"/><stop offset="1" stop-color="#c10b17"/></linearGradient></defs>'
  +'<g class="hat">'
  +'<path d="M50 70 C50 34 72 12 104 12 C132 12 150 28 160 52 C150 40 138 34 128 38 C136 50 138 60 136 70 Z" fill="url(#shR)"/>'
@@ -114,8 +114,11 @@ function render(){
  const tb=$('#btnToggle'),KOx=lang==='ko';tb.classList.toggle('zz',!!open);
  // Santa character: built once and kept, so switching the .on class animates the eyes instead of re-creating it
  let ic=tb.querySelector('.santa');if(!ic){tb.innerHTML=SANTA(!!open)+'<span class="lbl"></span>';ic=tb.querySelector('.santa');}
- ic.classList.toggle('on',!!open);ic.setAttribute('aria-label',open?(KOx?'자는 중':'Asleep'):(KOx?'깨어 있음':'Awake'));
- tb.querySelector('.lbl').innerHTML=open?'<span class="w">'+(KOx?'기상':'Awake')+'</span><span class="el">'+fmtH((Date.now()-new Date(open.sleep))/36e5)+'</span>':'<span class="w">'+(KOx?'수면':'Sleep')+'</span>';
+ ic.classList.toggle('on',!!open);
+ // v3: no big 수면/기상 word; character alone, centered. Small elapsed line (asleep only) sits near the bottom. Button keeps an aria-label.
+ const elT=open?fmtH((Date.now()-new Date(open.sleep))/36e5):'';
+ tb.querySelector('.lbl').innerHTML=open?'<span class="el">'+elT+'</span>':'';
+ tb.setAttribute('aria-label',open?(KOx?'기상 (수면 '+elT+')':'Wake up (asleep '+elT+')'):(KOx?'수면 시작':'Start sleep'));
  $('#disc').innerHTML=t('disc')+(sample?'<br><b>'+t('sampleCalc')+'</b>':'');
  $('#btnFold').textContent=folded?t('unfold'):t('fold');$('#list').classList.toggle('hide',folded);
  $('#list').innerHTML=all.slice(0,10).map(r=>{const s=new Date(r.sleep),w=r.wake&&new Date(r.wake);
