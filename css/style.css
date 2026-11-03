@@ -154,3 +154,21 @@ header .icon,.spill{position:relative}header .icon::before,.spill::before{conten
 @keyframes sblink{0%,92%,100%{transform:none}95%{transform:scaleY(.08)}}
 @keyframes szz{0%{opacity:0;transform:translate(0,8px) scale(.8)}25%,65%{opacity:1}100%{opacity:0;transform:translate(5px,-10px) scale(1.05)}}
 @media (prefers-reduced-motion:reduce){.santa .eyes,.santa.on .zz{animation:none}.santa .eyeo,.santa .shut{transition:none}.santa.on .zz{opacity:1}}
+/* ===== add-record card (맥박노트-style, inline in 최근 기록) ===== */
+.adc{border:1px solid var(--line);border-radius:16px;padding:14px 14px 8px;margin:10px 0 4px;background:var(--bg)}
+.adc-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}.adc-head h3{margin:0;font-size:15px;font-weight:800}
+.adc-link{background:none;border:0;padding:6px 2px;color:var(--acc);font-size:14px;font-weight:600}
+[data-theme=dark] .adc-link,[data-theme=dark] .adc-save{color:#a9acff}
+.adc-f{display:block;margin:10px 0 0;font-size:13px;color:var(--mut);min-width:0}.adc-f>span{display:block;margin-bottom:6px}
+.adc-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.adc input[type=date],.adc input[type=time]{-webkit-appearance:none;appearance:none;display:block;width:100%;min-width:0;max-width:100%;margin:0;height:48px;padding:0 10px;
+ border-radius:12px;border:1px solid var(--line);background:var(--chip);color:var(--tx);font-size:17px;font-family:inherit;text-align:center;line-height:48px}
+.adc input::-webkit-date-and-time-value{text-align:center;margin:0}
+.adc input:disabled{opacity:.45}
+[data-theme=light] .adc input{color-scheme:light}[data-theme=dark] .adc input{color-scheme:dark}
+.adc-still{display:flex;align-items:center;gap:8px;margin:10px 0 0;font-size:13px;color:var(--mut)}.adc-still input{width:auto;margin:0}
+.adc .err{margin:8px 0 0}.adc .err:empty{display:none}
+.adc-btns{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.adc-save{background:none;border:0;padding:10px 4px;color:var(--acc);font-size:17px;font-weight:800}
+.adc-del{background:none;border:0;padding:10px 4px;color:var(--bad);font-size:14px;font-weight:600}
+.addmsg{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0 0;font-size:14px;font-weight:700}
